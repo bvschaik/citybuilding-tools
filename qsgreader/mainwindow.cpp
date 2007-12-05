@@ -80,9 +80,16 @@ void MainWindow::loadFile(const QString &filename) {
 	
 	qDebug() << "Filename to open: " << filename;
 	SgFile sgfile(filename);
-	QFileInfo fi(filename);
-	treewidget->setHeaderLabel(fi.fileName());
-	createTree(sgfile.loadFile());
+	
+	QList<SgFileRecord*> items = sgfile.loadFile();
+	if (items.size() == 0) {
+		QMessageBox::warning(this, tr("Error loading file"),
+			tr("The file you selected is not a valid Sierra Graphics file"));
+	} else {
+		QFileInfo fi(filename);
+		treewidget->setHeaderLabel(fi.fileName());
+		createTree(items);
+	}
 	//imagebox->setImage(new QImage(filename));
 }
 

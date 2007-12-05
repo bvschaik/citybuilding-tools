@@ -11,10 +11,13 @@ class SgFile {
 	
 public:
 	SgFile(QString filename);
+	~SgFile();
 	QList<SgFileRecord*> loadFile();
 
 private:
 	bool openFile();
+	bool checkVersion(quint32 version, quint32 filesize);
+	quint32 getNumFileRecords(quint32 version);
 	void readHeader(SgFileHeader *header);
 	
 	QString filename;

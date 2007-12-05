@@ -26,6 +26,10 @@ public:
 	/* 24 more misc bytes, most zero */
 	quint32 is_internal;
 	QList<SgImageRecord*> images;
+	
+	enum {
+		RecordSize = 200
+	};
 };
 
 #endif /* SGFILERECORD_H */
