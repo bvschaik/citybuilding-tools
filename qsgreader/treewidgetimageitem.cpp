@@ -10,6 +10,12 @@ TreeWidgetImageItem::TreeWidgetImageItem(int i, SgImageRecord *record)
 	setText(0, text);
 }
 
+TreeWidgetImageItem::~TreeWidgetImageItem() {
+	if (record != NULL) {
+		delete record;
+	}
+}
+
 SgImageRecord* TreeWidgetImageItem::imageRecord() {
 	return record;
 }

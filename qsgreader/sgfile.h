@@ -17,6 +17,7 @@ public:
 private:
 	bool openFile();
 	bool checkVersion(quint32 version, quint32 filesize);
+	void readImages(SgFileHeader header, QList<SgFileRecord*> records);
 	quint32 getNumFileRecords(quint32 version);
 	void readHeader(SgFileHeader *header);
 	

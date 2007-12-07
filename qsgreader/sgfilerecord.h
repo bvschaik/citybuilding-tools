@@ -11,6 +11,7 @@ public:
 	//SgFileRecord();
 	void load(QDataStream *stream);
 	void addImage(SgImageRecord *image);
+	bool isInternal();
 	
 	char filename[65];
 	char comment[51];
@@ -24,7 +25,6 @@ public:
 	/*  8b, 2x int with (real?) width & height */
 	/* 12b, 3x int: if any is non-zero: internal image */
 	/* 24 more misc bytes, most zero */
-	quint32 is_internal;
 	QList<SgImageRecord*> images;
 	
 	enum {

@@ -9,6 +9,7 @@ class TreeWidgetFileItem : public QTreeWidgetItem {
 
 public:
 	TreeWidgetFileItem(SgFileRecord *record);
+	~TreeWidgetFileItem();
 	SgFileRecord* fileRecord();
 	static const int Type = 1001;
 

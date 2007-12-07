@@ -8,6 +8,7 @@ class SgFileRecord;
 
 class SgImageRecord {
 public:
+	~SgImageRecord();
 	void load(QDataStream *stream);
 	
 	quint32 offset;
@@ -23,7 +24,7 @@ public:
 	char flags[4];
 	quint8 file_id;
 	/* 3 bytes + 4 zero bytes */
-	
+	quint32 id;
 	SgFileRecord *parent;
 };
 

@@ -18,11 +18,16 @@ void SgFileRecord::load(QDataStream *stream) {
 	*stream >> num_images;
 	*stream >> start_index;
 	*stream >> end_index;
-	stream->skipRawData(32);
-	*stream >> is_internal;
-	stream->skipRawData(28);
+	stream->skipRawData(64);
 }
 
 void SgFileRecord::addImage(SgImageRecord *image) {
 	images.append(image);
+}
+
+bool SgFileRecord::isInternal() {
+	if (images.size() > 0) {
+		return (images[0]->offset != 1);
+	}
+	return true;
 }

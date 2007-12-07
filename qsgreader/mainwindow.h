@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
 #include "imagebox.h"
 
 class QTreeWidget;
@@ -15,6 +16,7 @@ class MainWindow : public QMainWindow {
 	
 public:
     MainWindow();
+	~MainWindow();
 	
 protected:
 	//void closeEvent(QCloseEvent *event);
@@ -35,7 +37,6 @@ private:
 	
 	ImageBox *imagebox;
 	QTreeWidget *treewidget;
-	QImage *image;
 	QString filename;
 	SgImageRecord *selectedImage;
 	
@@ -43,6 +44,8 @@ private:
 	QAction *openAct;
 	QAction *saveAct;
 	QAction *exitAct;
+	
+	QFileDialog openFileDialog;
 };
 
 #endif /* MAINWINDOW_H */

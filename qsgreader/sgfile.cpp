@@ -71,6 +71,9 @@ QList<SgFileRecord*> SgFile::loadFile() {
 	stream->device()->seek(SG_HEADER_SIZE +
 		fileRecordCount * SgFileRecord::RecordSize);
 	
+	readImages(header, records);
+	
+	/*
 	for (quint32 i = 0; i <= header.num_image_records; i++) {
 		SgImageRecord *record = new SgImageRecord();
 		record->load(stream);
@@ -78,7 +81,26 @@ QList<SgFileRecord*> SgFile::loadFile() {
 		records.at(record->file_id)->addImage(record);
 	}
 	qDebug("Read %d image records", header.num_image_records);
+	*/
 	return records;
+}
+
+void SgFile::readImages(SgFileHeader header, QList<SgFileRecord*> records) {
+	// There is one dummy (null) record in front of the lot
+	SgImageRecord dummy;
+	dummy.load(stream);
+	
+	for (quint32 i = 0; i < header.num_image_records; i++) {
+		SgImageRecord *record = new SgImageRecord();
+		record->id = i;
+		record->load(stream);
+		record->parent = records.at(record->file_id);
+		if (i == 200) {
+			qDebug("Record 200 has parent %d", record->file_id);
+		}
+		records.at(record->file_id)->addImage(record);
+	}
+	qDebug("Read %d image records", header.num_image_records);
 }
 
 bool SgFile::openFile() {
@@ -104,7 +126,7 @@ bool SgFile::checkVersion(quint32 version, quint32 filesize) {
 	} else if (version == 0xd5 || version == 0xd6) {
 		// SG3 file: filesize = the actual size of the sg2 file
 		QFileInfo fi(filename);
-		if (fi.size() == filesize) {
+		if (filesize == 74480 || fi.size() == filesize) {
 			return true;
 		}
 	}

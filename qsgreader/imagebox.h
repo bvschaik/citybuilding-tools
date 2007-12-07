@@ -9,6 +9,7 @@ class ImageBox : public QScrollArea {
 	
 public:
 	ImageBox();
+	~ImageBox();
 	QImage * image();
 	void setImage(QImage *img);
 	

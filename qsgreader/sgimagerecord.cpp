@@ -2,7 +2,12 @@
 
 #include <QDataStream>
 
+SgImageRecord::~SgImageRecord() {
+	//qDebug("Deleting image record %d", id);
+}
+
 void SgImageRecord::load(QDataStream *stream) {
+	//qDebug("Creating image record %d", id);
 	*stream >> offset;
 	*stream >> length;
 	*stream >> image_data_length;

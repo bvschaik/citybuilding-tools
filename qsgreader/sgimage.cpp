@@ -44,17 +44,17 @@ QImage* SgImage::loadImage() {
 			break;
 	}
 	
-	delete buffer;
+	delete[] buffer;
 	return result;
 }
 
-QImage* SgImage::loadPlainImage(quint8 *buf) {
+QImage* SgImage::loadPlainImage(quint8 *buffer) {
 	// Check whether the image data is OK
 	if (record->height * record->width * 2 != (int)record->length) {
 		qDebug("Image data length doesn't match image size");
 		return NULL;
 	}
-	quint8 *buffer = (quint8*)buf;
+	
 	QImage *img = new QImage(record->width, record->height, QImage::Format_ARGB32);
 	img->fill(0); // Transparent black
 	
@@ -184,7 +184,7 @@ quint8 * SgImage::fillBuffer(QString filename) {
 		return NULL;
 	}
 	
-	if (record->parent->is_internal) {
+	if (record->parent->isInternal()) {
 		file.seek(record->offset);
 	} else {
 		// Somehow externals have 1 byte added to their offset
@@ -208,18 +208,21 @@ void SgImage::set555Pixel(QImage *img, int x, int y, quint16 color) {
 	if (color == 0xf81f) {
 		return;
 	}
-	//quint32 red, green, blue;
+	
 	quint32 rgb = 0xff000000;
 	
 	// Red: bits 11-15, should go to bits 17-24
 	rgb |= ((color & 0x7c00) << 9) | ((color & 0x7000) << 4);
 	
 	// Green: bits 6-10, should go to bits 9-16
-	rgb |= ((color & 0x3e0) << 6) | ((color & 300));
+	rgb |= ((color & 0x3e0) << 6) | ((color & 0x300));
 	
 	// Blue: bits 1-5, should go to bits 1-8
 	rgb |= ((color & 0x1f) << 3) | ((color & 0x1c) >> 2);
+	
 	/*
+	quint32 red, green, blue;
+	
 	red = (color & 0x7c00) >> 10;
 	red = (red << 3) | (red >> 2);
 	
@@ -239,7 +242,7 @@ QString SgImage::find555File() {
 	// Fetch basename of the file
 	// either the same name as sg(2|3) or from file record
 	QString basename;
-	if (record->parent->is_internal) {
+	if (record->parent->isInternal()) {
 		basename = fileinfo.fileName();
 	} else {
 		basename = QString(record->parent->filename);

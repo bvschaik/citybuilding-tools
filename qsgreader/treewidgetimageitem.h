@@ -9,6 +9,7 @@ class TreeWidgetImageItem : public QTreeWidgetItem {
 
 public:
 	TreeWidgetImageItem(int i, SgImageRecord *record);
+	~TreeWidgetImageItem();
 	SgImageRecord* imageRecord();
 	static const int Type = 1002;
 

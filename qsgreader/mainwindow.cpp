@@ -10,6 +10,7 @@
 #include "sgimage.h"
 
 MainWindow::MainWindow() {
+	selectedImage = NULL;
 	
 	imagebox = new ImageBox();
 	//setCentralWidget(imagebox);
@@ -51,13 +52,17 @@ MainWindow::MainWindow() {
 	if (QCoreApplication::arguments().size() > 1) {
 		loadFile(QCoreApplication::arguments().at(1));
 	}
+	
 	resize(500, 400);
 }
 
+MainWindow::~MainWindow() {
+	qDebug("Destructor called");
+}
+
 void MainWindow::openFile() {
-	QString filename = QFileDialog::getOpenFileName(this);
-	if (!filename.isEmpty()) {
-		loadFile(filename);
+	if (openFileDialog.exec()) {
+		loadFile(openFileDialog.selectedFiles().at(0));
 	}
 }
 
@@ -200,6 +205,12 @@ void MainWindow::createActions() {
 	exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+	
+	// Open file dialog
+	openFileDialog.setDirectory(QDir::homePath());
+	openFileDialog.setFileMode(QFileDialog::ExistingFile);
+	openFileDialog.setFilter(tr("Sierra Graphics Files (*.sg2 *.sg3);;All Files (*)"));
+	openFileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 }
 
 void MainWindow::createMenus() {
@@ -215,6 +226,7 @@ void MainWindow::createTree(QList<SgFileRecord*> list) {
 	QTreeWidgetItem *child;
 	
 	// Clear tree first
+	selectedImage = NULL;
 	treewidget->clear();
 	
 	// Add widgets recursively
@@ -223,7 +235,7 @@ void MainWindow::createTree(QList<SgFileRecord*> list) {
 		item = new TreeWidgetFileItem(filerec);
 		
 		// Add child records (images)
-		for (int j = 0; j < (int)filerec->num_images; j++) {
+		for (int j = 0; j < filerec->images.size(); j++) {
 			child = new TreeWidgetImageItem(j, filerec->images[j]);
 			item->addChild(child);
 		}
