@@ -2,7 +2,9 @@
 
 #include <QDataStream>
 
-SgImageRecord::~SgImageRecord() {
+SgImageRecord::SgImageRecord()
+	: parent(0), invert_record(0)
+{
 	//qDebug("Deleting image record %d", id);
 }
 
@@ -12,8 +14,8 @@ void SgImageRecord::load(QDataStream *stream, bool includeAlpha) {
 	*stream >> length;
 	*stream >> image_data_length;
 	//stream->skipRawData(8);
-	stream->readRawData((char*)bytes8, 8);
-	//*stream >> invert_offset;
+	stream->readRawData((char*)bytes8, 4);
+	*stream >> invert_offset;
 	*stream >> width;
 	*stream >> height;
 	*stream >> unknown[0];

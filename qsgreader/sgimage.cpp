@@ -22,6 +22,14 @@ QImage* SgImage::loadImage() {
 	QString filename = find555File();
 	qDebug() << "555 filename: " << filename;
 	
+	bool invert = false;
+	if (record->invert_record) {
+		invert = true;
+		record = record->invert_record;
+	}
+	//qDebug("invert_offset: %d, offset: %d, length: %d", record->invert_offset,
+	//	record->offset, record->length);
+	
 	quint8 *buffer = fillBuffer(filename);
 	if (buffer == NULL) {
 		return NULL;
@@ -60,6 +68,12 @@ QImage* SgImage::loadImage() {
 	}
 	
 	delete[] buffer;
+	
+	if (invert) {
+		QImage tmp = result->mirrored(true, false);
+		delete result;
+		result = new QImage(tmp);
+	}
 	return result;
 }
 

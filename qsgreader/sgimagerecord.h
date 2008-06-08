@@ -8,13 +8,13 @@ class SgFileRecord;
 
 class SgImageRecord {
 public:
-	~SgImageRecord();
+	SgImageRecord();
 	void load(QDataStream *stream, bool includeAlpha);
 	
 	quint32 offset;
 	quint32 length;
 	quint32 image_data_length;
-	/* 8 zero bytes: */
+	/* 4 zero bytes: */
 	quint8 bytes8[8];
 	qint32 invert_offset;
 	quint16 width;
@@ -33,6 +33,7 @@ public:
 	quint32 alpha_length;
 	quint32 id;
 	SgFileRecord *parent;
+	SgImageRecord *invert_record;
 };
 
 #endif /* SGIMAGERECORD_H */

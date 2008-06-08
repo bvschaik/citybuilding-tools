@@ -89,17 +89,23 @@ void SgFile::readImages(SgFileHeader header, QList<SgFileRecord*> records) {
 	// There is one dummy (null) record in front of the lot
 	SgImageRecord dummy;
 	dummy.load(stream, header.version >= 0xd6);
+	SgImageRecord **tempRecords = new SgImageRecord*[header.num_image_records];
 	
 	for (quint32 i = 0; i < header.num_image_records; i++) {
 		SgImageRecord *record = new SgImageRecord();
 		record->id = i;
 		record->load(stream, header.version >= 0xd6);
+		if (record->invert_offset < 0 && (i + record->invert_offset) >= 0) {
+			record->invert_record = tempRecords[i + record->invert_offset];
+		}
 		record->parent = records.at(record->file_id);
 		if (i == 200) {
 			qDebug("Record 200 has parent %d", record->file_id);
 		}
-		records.at(record->file_id)->addImage(record);
+		tempRecords[i] = record;
+		records.at(record->file_id)->addImage(record); // TODO: UNSAFE
 	}
+	delete[] tempRecords;
 	qDebug("Read %d image records", header.num_image_records);
 }
 
