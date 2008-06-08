@@ -7,7 +7,10 @@
 enum {
 	ISOMETRIC_TILE_WIDTH = 58,
 	ISOMETRIC_TILE_HEIGHT = 30,
-	ISOMETRIC_TILE_BYTES = 1800
+	ISOMETRIC_TILE_BYTES = 1800,
+	ISOMETRIC_LARGE_TILE_WIDTH = 78,
+	ISOMETRIC_LARGE_TILE_HEIGHT = 40,
+	ISOMETRIC_LARGE_TILE_BYTES = 3200
 };
 
 SgImage::SgImage(SgImageRecord *record, QString sgFileName) {
@@ -94,11 +97,39 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 	int width, height, height_offset;
 	int size = record->flags[3];
 	int x_offset, y_offset;
+	int tile_bytes, tile_height, tile_width;
 	
 	width = img->width();
 	height = (width + 2) / 2; /* 58 -> 30, 118 -> 60, etc */
 	height_offset = img->height() - height;
 	y_offset = height_offset;
+	
+	if (size == 0) {
+		/* Derive the tile size from the height (more regular than width) */
+		/* Note that this causes a problem with 4x4 regular vs 3x3 large: */
+		/* 4 * 30 = 120; 3 * 40 = 120 -- give precedence to regular */
+		if (height % ISOMETRIC_TILE_HEIGHT == 0) {
+			size = height / ISOMETRIC_TILE_HEIGHT;
+		} else if (height % ISOMETRIC_LARGE_TILE_HEIGHT == 0) {
+			size = height / ISOMETRIC_LARGE_TILE_HEIGHT;
+		}
+	}
+	
+	/* Determine whether we should use the regular or large (emperor) tiles */
+	if (ISOMETRIC_TILE_HEIGHT * size == height) {
+		/* Regular tile */
+		tile_bytes  = ISOMETRIC_TILE_BYTES;
+		tile_height = ISOMETRIC_TILE_HEIGHT;
+		tile_width  = ISOMETRIC_TILE_WIDTH;
+	} else if (ISOMETRIC_LARGE_TILE_HEIGHT * size == height) {
+		/* Large (emperor) tile */
+		tile_bytes  = ISOMETRIC_LARGE_TILE_BYTES;
+		tile_height = ISOMETRIC_LARGE_TILE_HEIGHT;
+		tile_width  = ISOMETRIC_LARGE_TILE_WIDTH;
+	} else {
+		qDebug("Unknown tile size: %d", 2 * height / size);
+		return;
+	}
 	
 	/* Check if buffer length is enough: (width + 2) * height / 2 * 2bpp */
 	if ((width + 2) * height != (int)record->image_data_length) {
@@ -108,36 +139,33 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 	
 	i = 0;
 	for (y = 0; y < (size + (size - 1)); y++) {
-		x_offset = (y < size ? (size - y - 1) : (y - size + 1))
-			* ISOMETRIC_TILE_HEIGHT;
+		x_offset = (y < size ? (size - y - 1) : (y - size + 1)) * tile_height;
 		for (x = 0; x < (y < size ? y + 1 : 2 * size - y - 1); x++, i++) {
-			writeIsometricTile(img, &buffer[i * ISOMETRIC_TILE_BYTES],
-				x_offset, y_offset);
-			x_offset += ISOMETRIC_TILE_WIDTH + 2;
+			writeIsometricTile(img, &buffer[i * tile_bytes],
+				x_offset, y_offset, tile_width, tile_height);
+			x_offset += tile_width + 2;
 		}
-		y_offset += ISOMETRIC_TILE_HEIGHT / 2;
+		y_offset += tile_height / 2;
 	}
 	
 }
 
 void SgImage::writeIsometricTile(QImage *img, const quint8 *buffer,
-		int offset_x, int offset_y) {
-	int half_height = ISOMETRIC_TILE_HEIGHT / 2;
-	int height = ISOMETRIC_TILE_HEIGHT;
-	int width = ISOMETRIC_TILE_WIDTH;
+		int offset_x, int offset_y, int tile_width, int tile_height) {
+	int half_height = tile_height / 2;
 	int x, y, i = 0;
 	
 	for (y = 0; y < half_height; y++) {
-		int start = height - 2 * (y + 1);
-		int end = width - start;
+		int start = tile_height - 2 * (y + 1);
+		int end = tile_width - start;
 		for (x = start; x < end; x++, i += 2) {
 			set555Pixel(img, offset_x + x, offset_y + y,
 				(buffer[i+1] << 8) | buffer[i]);
 		}
 	}
-	for (y = half_height; y < height; y++) {
-		int start = 2 * y - height;
-		int end = width - start;
+	for (y = half_height; y < tile_height; y++) {
+		int start = 2 * y - tile_height;
+		int end = tile_width - start;
 		for (x = start; x < end; x++, i += 2) {
 			set555Pixel(img, offset_x + x, offset_y + y,
 				(buffer[i+1] << 8) | buffer[i]);

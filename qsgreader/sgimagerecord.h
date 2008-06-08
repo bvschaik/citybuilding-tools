@@ -9,21 +9,25 @@ class SgFileRecord;
 class SgImageRecord {
 public:
 	~SgImageRecord();
-	void load(QDataStream *stream);
+	void load(QDataStream *stream, bool includeAlpha);
 	
 	quint32 offset;
 	quint32 length;
 	quint32 image_data_length;
-	/* 8 zero bytes */
+	/* 8 zero bytes: */
+	quint8 bytes8[8];
+	qint32 invert_offset;
 	quint16 width;
 	quint16 height;
 	quint16 unknown[2];
-	/* 22 zero bytes */
+	/* 22 zero bytes: */
+	quint8 bytes22[22];
 	quint16 type;
 	/* 4 flag/option-like bytes */
 	char flags[4];
 	quint8 file_id;
 	/* 3 bytes + 4 zero bytes */
+	quint8 bytes7[7];
 	quint32 id;
 	SgFileRecord *parent;
 };

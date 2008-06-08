@@ -88,12 +88,12 @@ QList<SgFileRecord*> SgFile::loadFile() {
 void SgFile::readImages(SgFileHeader header, QList<SgFileRecord*> records) {
 	// There is one dummy (null) record in front of the lot
 	SgImageRecord dummy;
-	dummy.load(stream);
+	dummy.load(stream, header.version >= 0xd6);
 	
 	for (quint32 i = 0; i < header.num_image_records; i++) {
 		SgImageRecord *record = new SgImageRecord();
 		record->id = i;
-		record->load(stream);
+		record->load(stream, header.version >= 0xd6);
 		record->parent = records.at(record->file_id);
 		if (i == 200) {
 			qDebug("Record 200 has parent %d", record->file_id);
@@ -124,7 +124,7 @@ bool SgFile::checkVersion(quint32 version, quint32 filesize) {
 			return true;
 		}
 	} else if (version == 0xd5 || version == 0xd6) {
-		// SG3 file: filesize = the actual size of the sg2 file
+		// SG3 file: filesize = the actual size of the sg3 file
 		QFileInfo fi(filename);
 		if (filesize == 74480 || fi.size() == filesize) {
 			return true;

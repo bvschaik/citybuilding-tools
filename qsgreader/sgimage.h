@@ -21,7 +21,7 @@ private:
 	QImage* loadSpriteImage(quint8 *buffer);
 	void writeIsometricBase(QImage *img, const quint8 *buffer);
 	void writeIsometricTile(QImage *img, const quint8 *buffer,
-		int offset_x, int offset_y);
+		int offset_x, int offset_y, int tile_width, int tile_height);
 	void writeTransparentImage(QImage *img, const quint8 *buffer, int length);
 	void set555Pixel(QImage *img, int x, int y, quint16 color);
 	
