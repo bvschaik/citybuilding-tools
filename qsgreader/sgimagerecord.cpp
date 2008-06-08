@@ -27,7 +27,10 @@ void SgImageRecord::load(QDataStream *stream, bool includeAlpha) {
 	stream->readRawData((char*)bytes7, 7);
 	
 	if (includeAlpha) {
-		stream->skipRawData(8);
+		*stream >> alpha_offset;
+		*stream >> alpha_length;
+	} else {
+		alpha_offset = alpha_length = 0;
 	}
 	
 	/*

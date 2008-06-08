@@ -28,6 +28,9 @@ public:
 	quint8 file_id;
 	/* 3 bytes + 4 zero bytes */
 	quint8 bytes7[7];
+	/* For D6 and up SG3 versions: alpha masks */
+	quint32 alpha_offset;
+	quint32 alpha_length;
 	quint32 id;
 	SgFileRecord *parent;
 };

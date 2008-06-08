@@ -47,6 +47,18 @@ QImage* SgImage::loadImage() {
 			break;
 	}
 	
+	if (record->alpha_length) {
+		quint8 *alpha_buffer = &(buffer[record->length]);
+		qDebug("Image at %d length %d data length %d", record->offset,
+			record->length, record->image_data_length);
+		qDebug("Alpha image at %d length %d", record->alpha_offset, record->alpha_length);
+		/*QImage *alpha = */loadAlphaMask(result, alpha_buffer);
+		// Set the alpha channel to the original image (manually... setAlphaChannel()
+		// doesn't give the required results)
+		//return alpha;
+		//result->setAlphaChannel(*alpha);
+	}
+	
 	delete[] buffer;
 	return result;
 }
@@ -89,6 +101,34 @@ QImage* SgImage::loadSpriteImage(quint8 *buffer) {
 	
 	writeTransparentImage(img, buffer, record->length);
 	
+	return img;
+}
+
+QImage* SgImage::loadAlphaMask(QImage *img, const quint8 *buffer) {
+	int i = 0;
+	int x = 0, y = 0, j;
+	int width = img->width();
+	int length = record->alpha_length;
+	
+	while (i < length) {
+		quint8 c = buffer[i++];
+		if (c == 255) {
+			/* The next byte is the number of pixels to skip */
+			x += buffer[i++];
+			if (x >= width) {
+				y++; x -= width; // TODO: bug: length spanning multiple lines
+			}
+		} else {
+			/* `c' is the number of image data bytes */
+			for (j = 0; j < c; j++, i++) {
+				setAlphaPixel(img, x, y, buffer[i]);
+				x++;
+				if (x >= width) {
+					y++; x = 0;
+				}
+			}
+		}
+	}
 	return img;
 }
 
@@ -206,9 +246,10 @@ quint8 * SgImage::fillBuffer(QString filename) {
 	}
 	QDataStream stream(&file);
 	
-	char *buffer = new char[record->length];
+	int data_length = record->length + record->alpha_length;
+	char *buffer = new char[data_length];
 	if (buffer == NULL) {
-		qDebug("Cannot allocate %d bytes of memory", record->length);
+		qDebug("Cannot allocate %d bytes of memory", data_length);
 		return NULL;
 	}
 	
@@ -220,10 +261,10 @@ quint8 * SgImage::fillBuffer(QString filename) {
 	}
 	
 	/* Fill buffer */
-	int bytes_read = stream.readRawData(buffer, record->length);
-	if (bytes_read != (int)record->length) {
+	int bytes_read = stream.readRawData(buffer, data_length);
+	if (bytes_read != (int)data_length) {
 		qDebug("Unable to read %d bytes from file; read %d\n",
-			record->length, bytes_read);
+			data_length, bytes_read);
 		file.close();
 		delete buffer;
 		return NULL;
@@ -248,20 +289,14 @@ void SgImage::set555Pixel(QImage *img, int x, int y, quint16 color) {
 	// Blue: bits 1-5, should go to bits 1-8
 	rgb |= ((color & 0x1f) << 3) | ((color & 0x1c) >> 2);
 	
-	/*
-	quint32 red, green, blue;
-	
-	red = (color & 0x7c00) >> 10;
-	red = (red << 3) | (red >> 2);
-	
-	green = (color & 0x3E0) >> 5;
-	green = (green << 3) | (green >> 3); // No, the last 3 is NOT a typo
-	
-	blue = (color & 0x1F);
-	blue = (blue << 3) | (blue >> 2);
-	*/
-	//img->setPixel(x, y, 0xff000000 | (red << 16) | (green << 8) | blue);
 	img->setPixel(x, y, rgb);
+}
+
+void SgImage::setAlphaPixel(QImage *img, int x, int y, quint8 color) {
+	/* Only the first five bits of the alpha channel are used */
+	quint8 alpha = ((color & 0x1f) << 3) | ((color & 0x1c) >> 2);
+	
+	img->setPixel(x, y, (alpha << 24) | (img->pixel(x, y) & 0xffffff));
 }
 
 QString SgImage::find555File() {
