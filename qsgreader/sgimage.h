@@ -1,40 +1,45 @@
 #ifndef SGIMAGE_H
 #define SGIMAGE_H
 
-#include <QString>
-#include <QDir>
+#include "sgbitmap.h"
+#include <QImage>
 
-class QImage;
 class SgImageRecord;
 
 class SgImage {
-public:
-	SgImage(SgImageRecord *record, QString sgFileName);
-	QImage* loadImage();
-
-private:
-	QString find555File();
-	quint8* fillBuffer(QString filename);
-	QString findFilenameCaseInsensitive(QDir directory, QString filename);
-	QImage* loadPlainImage(quint8 *buffer);
-	QImage* loadIsometricImage(quint8 *buffer);
-	QImage* loadSpriteImage(quint8 *buffer);
-	QImage* loadAlphaMask(QImage *img, const quint8 *buffer);
-	void writeIsometricBase(QImage *img, const quint8 *buffer);
-	void writeIsometricTile(QImage *img, const quint8 *buffer,
-		int offset_x, int offset_y, int tile_width, int tile_height);
-	void writeTransparentImage(QImage *img, const quint8 *buffer, int length);
-	void set555Pixel(QImage *img, int x, int y, quint16 color);
-	void setAlphaPixel(QImage *img, int x, int y, quint8 color);
-	
-	enum ImageType {
-		PlainImage = 1,
-		IsometricImage = 30,
-		SpriteImage = 256
-	};
-	
-	SgImageRecord *record;
-	QString sgFileName;
+	public:
+		SgImage(int id, QDataStream *stream, bool includeAlpha);
+		~SgImage();
+		qint32 invertOffset() const;
+		int bitmapId() const;
+		QString description() const;
+		void setInvertImage(SgImage *invert);
+		void setParent(SgBitmap *parent);
+		QImage getImage();
+		
+	private:
+		quint8 *fillBuffer();
+		/* Image loaders */
+		void loadPlainImage(QImage *img, quint8 *buffer);
+		void loadIsometricImage(QImage *img, quint8 *buffer);
+		void loadSpriteImage(QImage *img, quint8 *buffer);
+		void loadAlphaMask(QImage *img, const quint8 *buffer);
+		
+		/* Image decoding methods */
+		void writeIsometricBase(QImage *img, const quint8 *buffer);
+		void writeIsometricTile(QImage *img, const quint8 *buffer,
+			int offset_x, int offset_y, int tile_width, int tile_height);
+		void writeTransparentImage(QImage *img, const quint8 *buffer, int length);
+		
+		/* Pixel setting */
+		void set555Pixel(QImage *img, int x, int y, quint16 color);
+		void setAlphaPixel(QImage *img, int x, int y, quint8 color);
+		
+		SgImageRecord *record;
+		SgImageRecord *workRecord;
+		SgBitmap *parent;
+		bool invert;
+		int imageId;
 };
 
 #endif /* SGIMAGE_H */

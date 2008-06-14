@@ -2,27 +2,40 @@
 #define SGFILE_H
 
 #include <QString>
-#include "sgfilerecord.h"
+#include <QList>
+#include <QImage>
 
-class QDataStream;
-class SgFileHeader;
+class SgBitmap;
+class SgImage;
+class SgHeader; // = header
 
 class SgFile {
-	
-public:
-	SgFile(QString filename);
-	~SgFile();
-	QList<SgFileRecord*> loadFile();
-
-private:
-	bool openFile();
-	bool checkVersion(quint32 version, quint32 filesize);
-	void readImages(SgFileHeader header, QList<SgFileRecord*> records);
-	quint32 getNumFileRecords(quint32 version);
-	void readHeader(SgFileHeader *header);
-	
-	QString filename;
-	QDataStream *stream;
+	public:
+		SgFile(const QString &filename);
+		~SgFile();
+		bool load();
+		int bitmapCount() const;
+		int totalImageCount() const;
+		int imageCount(int bitmapId) const;
+		
+		QString getBitmapDescription(int bitmapId) const;
+		
+		SgImage *image(int bitmapId, int imageId) const;
+		SgImage *image(int globalImageId) const;
+		
+		QImage getImage(int bitmapId, int imageId);
+		QImage getImage(int globalImageId);
+		
+	private:
+		bool checkVersion();
+		int maxBitmapRecords() const;
+		void loadBitmaps(QDataStream *stream);
+		void loadImages(QDataStream *stream, bool includeAlpha);
+		
+		QList<SgBitmap*> bitmaps;
+		QList<SgImage*> images;
+		QString filename;
+		SgHeader *header;
 };
 
 #endif /* SGFILE_H */

@@ -1,138 +1,187 @@
 #include "sgfile.h"
+#include "sgimage.h"
 
 #include <QDataStream>
-#include <QString>
-#include <QTreeWidget>
 #include <QFile>
 #include <QFileInfo>
-
-// internal "structs"
-class SgFileHeader {
-public:
-	quint32 sg_filesize;
-	quint32 version;
-	quint32 unknown1;
-	quint32 max_image_records;
-	quint32 num_image_records;
-	quint32 num_file_records;
-	quint32 num_file_records_without_system; /* ? */
-	quint32 total_filesize;
-	quint32 filesize_555;
-	quint32 filesize_external;
-};
 
 enum {
 	SG_HEADER_SIZE = 680
 };
 
-SgFile::SgFile(QString filename) {
+class SgHeader {
+public:
+	SgHeader(QDataStream *stream) {
+		*stream >> sg_filesize;
+		*stream >> version;
+		*stream >> unknown1;
+		*stream >> max_image_records;
+		*stream >> num_image_records;
+		*stream >> num_bitmap_records;
+		*stream >> num_bitmap_records_without_system;
+		*stream >> total_filesize;
+		*stream >> filesize_555;
+		*stream >> filesize_external;
+		stream->device()->seek(SG_HEADER_SIZE);
+	}
+	
+	quint32 sg_filesize;
+	quint32 version;
+	quint32 unknown1;
+	qint32 max_image_records;
+	qint32 num_image_records;
+	qint32 num_bitmap_records;
+	qint32 num_bitmap_records_without_system; /* ? */
+	quint32 total_filesize;
+	quint32 filesize_555;
+	quint32 filesize_external;
+};
+
+SgFile::SgFile(const QString &filename)
+	: header(NULL)
+{
 	this->filename = filename;
-	stream = NULL;
 }
 
 SgFile::~SgFile() {
-	if (stream != NULL) {
-		delete stream->device();
-		delete stream;
+	for (int i = 0; i < bitmaps.size(); i++) {
+		delete bitmaps[i];
+		bitmaps[i] = 0;
+	}
+	for (int i = 0; i < images.size(); i++) {
+		delete images[i];
+		images[i] = 0;
 	}
 }
 
-/**
-* Loads the file and returns the file records within it as list of 
-* SgFileRecord objects
-* @return list: empty if loading the file failed because the file didn't 
-* exist or the file is not an sg2 or sg3 file.
-*/
-QList<SgFileRecord*> SgFile::loadFile() {
-	QList<SgFileRecord*> records;
-	if (!openFile()) {
-		return records;
-	}
-	qDebug("Opened file");
-	SgFileHeader header;
-	readHeader(&header);
-	
-	if (!checkVersion(header.version, header.sg_filesize)) {
-		return records;
-	}
-	
-	quint32 fileRecordCount = getNumFileRecords(header.version);
-	
-	qDebug("Read header, num files = %d, num images = %d",
-		header.num_file_records, header.num_image_records);
-	for (quint32 i = 0; i < header.num_file_records; i++) {
-		SgFileRecord *record = new SgFileRecord();
-		record->load(stream);
-		records.append(record);
-	}
-	qDebug("Read %d file records", records.size());
-	
-	// Skip to the start of the image records
-	stream->device()->seek(SG_HEADER_SIZE +
-		fileRecordCount * SgFileRecord::RecordSize);
-	
-	readImages(header, records);
-	
-	/*
-	for (quint32 i = 0; i <= header.num_image_records; i++) {
-		SgImageRecord *record = new SgImageRecord();
-		record->load(stream);
-		record->parent = records.at(record->file_id);
-		records.at(record->file_id)->addImage(record);
-	}
-	qDebug("Read %d image records", header.num_image_records);
-	*/
-	return records;
+int SgFile::bitmapCount() const {
+	return bitmaps.size();
 }
 
-void SgFile::readImages(SgFileHeader header, QList<SgFileRecord*> records) {
-	// There is one dummy (null) record in front of the lot
-	SgImageRecord dummy;
-	dummy.load(stream, header.version >= 0xd6);
-	SgImageRecord **tempRecords = new SgImageRecord*[header.num_image_records];
-	
-	for (quint32 i = 0; i < header.num_image_records; i++) {
-		SgImageRecord *record = new SgImageRecord();
-		record->id = i;
-		record->load(stream, header.version >= 0xd6);
-		if (record->invert_offset < 0 && (i + record->invert_offset) >= 0) {
-			record->invert_record = tempRecords[i + record->invert_offset];
-		}
-		record->parent = records.at(record->file_id);
-		if (i == 200) {
-			qDebug("Record 200 has parent %d", record->file_id);
-		}
-		tempRecords[i] = record;
-		records.at(record->file_id)->addImage(record); // TODO: UNSAFE
+int SgFile::imageCount(int bitmapId) const {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size()) {
+		return -1;
 	}
-	delete[] tempRecords;
-	qDebug("Read %d image records", header.num_image_records);
+	
+	return bitmaps[bitmapId]->imageCount();
 }
 
-bool SgFile::openFile() {
-	QFile *file = new QFile(filename);
-	if (!file->open(QIODevice::ReadOnly)) {
+int SgFile::totalImageCount() const {
+	return images.size();
+}
+
+SgImage *SgFile::image(int imageId) const {
+	if (imageId < 0 || imageId >= images.size()) {
+		return NULL;
+	}
+	return images[imageId];
+}
+
+SgImage *SgFile::image(int bitmapId, int imageId) const {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size() ||
+		imageId < 0 || imageId >= bitmaps[bitmapId]->imageCount()) {
+		return NULL;
+	}
+	
+	return bitmaps[bitmapId]->image(imageId);
+}
+
+QImage SgFile::getImage(int imageId) {
+	if (imageId < 0 || imageId >= images.size()) {
+		qDebug("Id out of range");
+		return QImage();
+	}
+	return images[imageId]->getImage();
+}
+
+QImage SgFile::getImage(int bitmapId, int imageId) {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size() ||
+		imageId < 0 || imageId >= bitmaps[bitmapId]->imageCount()) {
+		qDebug("Id out of range");
+		return QImage();
+	}
+	
+	return bitmaps[bitmapId]->getImage(imageId);
+}
+
+QString SgFile::getBitmapDescription(int bitmapId) const {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size()) {
+		return QString();
+	}
+	
+	return bitmaps[bitmapId]->description();
+}
+
+bool SgFile::load() {
+	QFile file(filename);
+	if (!file.open(QIODevice::ReadOnly)) {
 		qDebug("unable to open file");
-		delete file;
 		return false;
 	}
 	
-	stream = new QDataStream(file);
-	stream->setByteOrder(QDataStream::LittleEndian);
+	QDataStream stream(&file);
+	stream.setByteOrder(QDataStream::LittleEndian);
+	
+	header = new SgHeader(&stream);
+	
+	if (!checkVersion()) {
+		return false;
+	}
+	
+	qDebug("Read header, num bitmaps = %d, num images = %d",
+		header->num_bitmap_records, header->num_image_records);
+	
+	loadBitmaps(&stream);
+	
+	file.seek(SG_HEADER_SIZE +
+		maxBitmapRecords() * SgBitmap::RECORD_SIZE);
+	
+	loadImages(&stream, header->version >= 0xd6);
+	
 	return true;
 }
 
-bool SgFile::checkVersion(quint32 version, quint32 filesize) {
-	if (version == 0xd3) {
+void SgFile::loadBitmaps(QDataStream *stream) {
+	
+	for (int i = 0; i < header->num_bitmap_records; i++) {
+		SgBitmap *bitmap = new SgBitmap(i, filename, stream);
+		bitmaps.append(bitmap);
+	}
+	
+}
+
+void SgFile::loadImages(QDataStream *stream, bool includeAlpha) {
+	// The first one is a dummy/null record
+	SgImage dummy(0, stream, includeAlpha);
+	
+	for (int i = 0; i < header->num_image_records; i++) {
+		SgImage *image = new SgImage(i, stream, includeAlpha);
+		qint32 invertOffset = image->invertOffset();
+		if (invertOffset < 0 && (i + invertOffset) >= 0) {
+			image->setInvertImage(images[i + invertOffset]);
+		}
+		int bitmapId = image->bitmapId();
+		if (bitmapId >= 0 && bitmapId < bitmaps.size()) {
+			bitmaps[bitmapId]->addImage(image);
+			image->setParent(bitmaps[bitmapId]);
+		} else {
+			qDebug("Image %d has no parent: %d", i, bitmapId);
+		}
+		images.append(image);
+	}
+}
+
+bool SgFile::checkVersion() {
+	if (header->version == 0xd3) {
 		// SG2 file: filesize = 74480 or 522680 (depending on whether it's
 		// a "normal" sg2 or an enemy sg2
-		if (filesize == 74480 || filesize == 522680) {
+		if (header->sg_filesize == 74480 || header->sg_filesize == 522680) {
 			return true;
 		}
-	} else if (version == 0xd5 || version == 0xd6) {
+	} else if (header->version == 0xd5 || header->version == 0xd6) {
 		// SG3 file: filesize = the actual size of the sg3 file
 		QFileInfo fi(filename);
-		if (filesize == 74480 || fi.size() == filesize) {
+		if (header->sg_filesize == 74480 || fi.size() == header->sg_filesize) {
 			return true;
 		}
 	}
@@ -141,29 +190,10 @@ bool SgFile::checkVersion(quint32 version, quint32 filesize) {
 	return false;
 }
 
-quint32 SgFile::getNumFileRecords(quint32 version) {
-	if (version == 0xd3) {
+int SgFile::maxBitmapRecords() const {
+	if (header->version == 0xd3) {
 		return 100; // SG2
 	} else {
 		return 200; // SG3
 	}
 }
-
-void SgFile::readHeader(SgFileHeader *header) {
-	qDebug("Reading header");
-	*stream >> header->sg_filesize;
-	*stream >> header->version;
-	qDebug("Version: %d", header->version);
-	*stream >> header->unknown1;
-	*stream >> header->max_image_records;
-	*stream >> header->num_image_records;
-	*stream >> header->num_file_records;
-	*stream >> header->num_file_records_without_system;
-	*stream >> header->total_filesize;
-	*stream >> header->filesize_555;
-	*stream >> header->filesize_external;
-	
-	// Seek to the end of the header
-	stream->device()->seek(SG_HEADER_SIZE);
-}
-

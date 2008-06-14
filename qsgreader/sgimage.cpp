@@ -1,8 +1,6 @@
 #include "sgimage.h"
-#include "sgimagerecord.h"
-#include "sgfilerecord.h"
-#include <QImage>
-#include <QDebug>
+#include <QFile>
+#include <QDataStream>
 
 enum {
 	ISOMETRIC_TILE_WIDTH = 58,
@@ -13,124 +11,234 @@ enum {
 	ISOMETRIC_LARGE_TILE_BYTES = 3200
 };
 
-SgImage::SgImage(SgImageRecord *record, QString sgFileName) {
-	this->record = record;
-	this->sgFileName = sgFileName;
+class SgImageRecord {
+public:
+	SgImageRecord(QDataStream *stream, bool includeAlpha) {
+		*stream >> offset;
+		*stream >> length;
+		*stream >> image_data_length;
+		stream->skipRawData(4);
+		*stream >> invert_offset;
+		*stream >> width;
+		*stream >> height;
+		stream->skipRawData(26);
+		*stream >> type;
+		stream->readRawData(flags, 4);
+		*stream >> bitmap_id;
+		stream->skipRawData(7);
+		
+		if (includeAlpha) {
+			*stream >> alpha_offset;
+			*stream >> alpha_length;
+		} else {
+			alpha_offset = alpha_length = 0;
+		}
+	}
+	
+	quint32 offset;
+	quint32 length;
+	quint32 image_data_length;
+	/* 4 zero bytes: */
+	qint32 invert_offset;
+	qint16 width;
+	qint16 height;
+	quint16 unknown[2];
+	/* 26 unknown bytes, mostly zero, first four are 2 shorts */
+	quint16 type;
+	/* 4 flag/option-like bytes: */
+	char flags[4];
+	quint8 bitmap_id;
+	/* 3 bytes + 4 zero bytes */
+	/* For D6 and up SG3 versions: alpha masks */
+	quint32 alpha_offset;
+	quint32 alpha_length;
+};
+
+SgImage::SgImage(int id, QDataStream *stream, bool includeAlpha)
+	: parent(NULL)
+{
+	imageId = id;
+	record = workRecord = new SgImageRecord(stream, includeAlpha);
+	if (record->invert_offset) {
+		invert = true;
+	} else {
+		invert = false;
+	}
 }
 
-QImage* SgImage::loadImage() {
-	QString filename = find555File();
-	qDebug() << "555 filename: " << filename;
-	
-	bool invert = false;
-	if (record->invert_record) {
-		invert = true;
-		record = record->invert_record;
+SgImage::~SgImage() {
+	if (record) delete record;
+	// workRecord is deleted by whoever owns it
+}
+
+qint32 SgImage::invertOffset() const {
+	return record->invert_offset;
+}
+
+int SgImage::bitmapId() const {
+	if (workRecord) return workRecord->bitmap_id;
+	return record->bitmap_id;
+}
+
+QString SgImage::description() const {
+	return QString("%0x%1")
+		.arg(workRecord->width)
+		.arg(workRecord->height);
+}
+
+void SgImage::setInvertImage(SgImage *invert) {
+	this->workRecord = invert->record;
+}
+
+void SgImage::setParent(SgBitmap *parent) {
+	this->parent = parent;
+}
+
+QImage SgImage::getImage() {
+	// START DEBUG ((
+	/*
+	if ((imageId >= 359 && imageId <= 368) || imageId == 459) {
+		qDebug("Record %d", imageId);
+		qDebug("  offet %d; length %d; length2 %d", record->offset, record->length, record->image_data_length);
+		qDebug("  invert %d; width %d; height %d", record->invert_offset, record->width, record->height);
+		qDebug("  type %d; flags %d %d %d %d; bitmap %d", record->type,
+			record->flags[0], record->flags[1], record->flags[2], record->flags[3], record->bitmap_id);
 	}
-	//qDebug("invert_offset: %d, offset: %d, length: %d", record->invert_offset,
-	//	record->offset, record->length);
+	*/
+	// END DEBUG ))
+	// Trivial checks
+	if (!parent) {
+		qDebug("Image has no parent");
+		return QImage();
+	}
+	if (workRecord->width <= 0 || workRecord->height <= 0) {
+		qDebug("Width or height invalid (%d x %d)",
+			workRecord->width, workRecord->height);
+		return QImage();
+	} else if (workRecord->length <= 0) {
+		qDebug("No image data available");
+		return QImage();
+	}
 	
-	quint8 *buffer = fillBuffer(filename);
+	quint8 *buffer = fillBuffer();
 	if (buffer == NULL) {
-		return NULL;
+		qDebug("Unable to load buffer");
+		return QImage();
 	}
 	
-	QImage *result = NULL;
+	QImage result(workRecord->width, workRecord->height, QImage::Format_ARGB32);
+	result.fill(0); // Transparent black
 	
-	switch (record->type) {
-		case PlainImage:
+	switch (workRecord->type) {
 		case 0:
+		case 1:
 		case 10:
 		case 12:
-			result = loadPlainImage(buffer);
+		case 13:
+			loadPlainImage(&result, buffer);
 			break;
 		
-		case IsometricImage:
-			result = loadIsometricImage(buffer);
+		case 30:
+			loadIsometricImage(&result, buffer);
 			break;
 		
-		case SpriteImage:
+		case 256:
+		case 257:
 		case 276:
-			result = loadSpriteImage(buffer);
+			loadSpriteImage(&result, buffer);
+			break;
+		
+		default:
+			qWarning("Unknown image type: %d", workRecord->type);
 			break;
 	}
 	
-	if (record->alpha_length) {
-		quint8 *alpha_buffer = &(buffer[record->length]);
-		qDebug("Image at %d length %d data length %d", record->offset,
-			record->length, record->image_data_length);
-		qDebug("Alpha image at %d length %d", record->alpha_offset, record->alpha_length);
-		/*QImage *alpha = */loadAlphaMask(result, alpha_buffer);
-		// Set the alpha channel to the original image (manually... setAlphaChannel()
-		// doesn't give the required results)
-		//return alpha;
-		//result->setAlphaChannel(*alpha);
+	if (workRecord->alpha_length) {
+		quint8 *alpha_buffer = &(buffer[workRecord->length]);
+		loadAlphaMask(&result, alpha_buffer);
 	}
 	
 	delete[] buffer;
 	
 	if (invert) {
-		QImage tmp = result->mirrored(true, false);
-		delete result;
-		result = new QImage(tmp);
+		return result.mirrored(true, false);
 	}
 	return result;
 }
 
-QImage* SgImage::loadPlainImage(quint8 *buffer) {
-	// Check whether the image data is OK
-	if (record->height * record->width * 2 != (int)record->length) {
-		qDebug("Image data length doesn't match image size");
+quint8* SgImage::fillBuffer() {
+	QFile *file = parent->openFile(workRecord->flags[0]);
+	if (file == NULL) {
+		qDebug("Unable to open 555 file");
 		return NULL;
 	}
 	
-	QImage *img = new QImage(record->width, record->height, QImage::Format_ARGB32);
-	img->fill(0); // Transparent black
+	int data_length = workRecord->length + workRecord->alpha_length;
+	if (data_length <= 0) {
+		qDebug("Data length: %d", data_length);
+	}
+	char *buffer = new char[data_length];
+	if (buffer == NULL) {
+		qDebug("Cannot allocate %d bytes of memory", data_length);
+		return NULL;
+	}
+	
+//	if (parent->isInternal()) {
+//		file->seek(workRecord->offset - );
+//	} else {
+		// Somehow externals have 1 byte added to their offset
+		file->seek(workRecord->offset - workRecord->flags[0]);
+//	}
+	
+	int data_read = (int)file->read(buffer, data_length);
+	if (data_length != data_read) {
+		qDebug("Unable to read %d bytes from file (read %d bytes)",
+			data_length, data_read);
+		delete[] buffer;
+		return NULL;
+	} // TODO exception when file.atEnd() and need only 4 bytes more
+	return (quint8*) buffer;
+}
+
+void SgImage::loadPlainImage(QImage *img, quint8 *buffer) {
+	// Check whether the image data is OK
+	if (workRecord->height * workRecord->width * 2 != (int)workRecord->length) {
+		qDebug("Image data length doesn't match image size");
+		return;
+	}
 	
 	int i = 0;
-	for (int y = 0; y < (int)record->height; y++) {
-		for (int x = 0; x < (int)record->width; x++, i+= 2) {
+	for (int y = 0; y < (int)workRecord->height; y++) {
+		for (int x = 0; x < (int)workRecord->width; x++, i+= 2) {
 			set555Pixel(img, x, y, buffer[i] | (buffer[i+1] << 8));
 		}
 	}
-	
-	return img;
 }
 
-QImage* SgImage::loadIsometricImage(quint8 *buffer) {
-	QImage *img = new QImage(record->width, record->height, QImage::Format_ARGB32);
-	img->fill(0); // Transparent black
+void SgImage::loadIsometricImage(QImage *img, quint8 *buffer) {
 	
 	writeIsometricBase(img, buffer);
-	
-	writeTransparentImage(img, &buffer[record->image_data_length],
-		record->length - record->image_data_length);
-	
-	return img;
+	writeTransparentImage(img, &buffer[workRecord->image_data_length],
+		workRecord->length - workRecord->image_data_length);
 }
 
-QImage* SgImage::loadSpriteImage(quint8 *buffer) {
-	QImage *img = new QImage(record->width, record->height, QImage::Format_ARGB32);
-	img->fill(0); // Transparent black
-	
-	writeTransparentImage(img, buffer, record->length);
-	
-	return img;
+void SgImage::loadSpriteImage(QImage *img, quint8 *buffer) {
+	writeTransparentImage(img, buffer, workRecord->length);
 }
 
-QImage* SgImage::loadAlphaMask(QImage *img, const quint8 *buffer) {
+void SgImage::loadAlphaMask(QImage *img, const quint8 *buffer) {
 	int i = 0;
 	int x = 0, y = 0, j;
 	int width = img->width();
-	int length = record->alpha_length;
+	int length = workRecord->alpha_length;
 	
 	while (i < length) {
 		quint8 c = buffer[i++];
 		if (c == 255) {
 			/* The next byte is the number of pixels to skip */
 			x += buffer[i++];
-			if (x >= width) {
-				y++; x -= width; // TODO: bug: length spanning multiple lines
+			while (x >= width) {
+				y++; x -= width;
 			}
 		} else {
 			/* `c' is the number of image data bytes */
@@ -143,13 +251,12 @@ QImage* SgImage::loadAlphaMask(QImage *img, const quint8 *buffer) {
 			}
 		}
 	}
-	return img;
 }
 
 void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 	int i = 0, x, y;
 	int width, height, height_offset;
-	int size = record->flags[3];
+	int size = workRecord->flags[3];
 	int x_offset, y_offset;
 	int tile_bytes, tile_height, tile_width;
 	
@@ -181,13 +288,16 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 		tile_height = ISOMETRIC_LARGE_TILE_HEIGHT;
 		tile_width  = ISOMETRIC_LARGE_TILE_WIDTH;
 	} else {
-		qDebug("Unknown tile size: %d", 2 * height / size);
+		qDebug("Unknown tile size: %d (height %d, width %d, size %d)",
+			2 * height / size, height, width, size);
 		return;
 	}
 	
 	/* Check if buffer length is enough: (width + 2) * height / 2 * 2bpp */
-	if ((width + 2) * height != (int)record->image_data_length) {
-		qDebug("Image data length doesn't match footprint size\n");
+	if ((width + 2) * height != (int)workRecord->image_data_length) {
+		qDebug("Image %d: data length doesn't match footprint size: %d vs %d (%d) %d",
+			imageId, (width + 2) * height, workRecord->image_data_length,
+			workRecord->length, workRecord->invert_offset);
 		return;
 	}
 	
@@ -237,7 +347,7 @@ void SgImage::writeTransparentImage(QImage *img, const quint8 *buffer, int lengt
 		if (c == 255) {
 			/* The next byte is the number of pixels to skip */
 			x += buffer[i++];
-			if (x >= width) {
+			while (x >= width) {
 				y++; x -= width;
 			}
 		} else {
@@ -251,40 +361,6 @@ void SgImage::writeTransparentImage(QImage *img, const quint8 *buffer, int lengt
 			}
 		}
 	}
-}
-
-quint8 * SgImage::fillBuffer(QString filename) {
-	QFile file(filename);
-	if (!file.open(QIODevice::ReadOnly)) {
-		return NULL;
-	}
-	QDataStream stream(&file);
-	
-	int data_length = record->length + record->alpha_length;
-	char *buffer = new char[data_length];
-	if (buffer == NULL) {
-		qDebug("Cannot allocate %d bytes of memory", data_length);
-		return NULL;
-	}
-	
-	if (record->parent->isInternal()) {
-		file.seek(record->offset);
-	} else {
-		// Somehow externals have 1 byte added to their offset
-		file.seek(record->offset - 1);
-	}
-	
-	/* Fill buffer */
-	int bytes_read = stream.readRawData(buffer, data_length);
-	if (bytes_read != (int)data_length) {
-		qDebug("Unable to read %d bytes from file; read %d\n",
-			data_length, bytes_read);
-		file.close();
-		delete buffer;
-		return NULL;
-	}
-	qDebug("Filled buffer");
-	return (quint8*) buffer;
 }
 
 void SgImage::set555Pixel(QImage *img, int x, int y, quint16 color) {
@@ -311,49 +387,4 @@ void SgImage::setAlphaPixel(QImage *img, int x, int y, quint8 color) {
 	quint8 alpha = ((color & 0x1f) << 3) | ((color & 0x1c) >> 2);
 	
 	img->setPixel(x, y, (alpha << 24) | (img->pixel(x, y) & 0xffffff));
-}
-
-QString SgImage::find555File() {
-	QFileInfo fileinfo(sgFileName);
-	
-	// Fetch basename of the file
-	// either the same name as sg(2|3) or from file record
-	QString basename;
-	if (record->parent->isInternal()) {
-		basename = fileinfo.fileName();
-	} else {
-		basename = QString(record->parent->filename);
-	}
-	
-	// Change the extension to .555
-	int position = basename.lastIndexOf('.');
-	if (position != -1) {
-		basename.replace(position + 1, 3, "555");
-	}
-	qDebug() << "Searching for file: " << basename;
-	
-	QString path = findFilenameCaseInsensitive(fileinfo.dir(), basename);
-	if (path.length() > 0) {
-		return path;
-	}
-	
-	QDir dirinfo = fileinfo.dir();
-	if (dirinfo.cd("555")) {
-		return findFilenameCaseInsensitive(dirinfo, basename);
-	}
-	return "";
-}
-
-QString SgImage::findFilenameCaseInsensitive(QDir directory, QString filename) {
-	filename = filename.toLower();
-	
-	QStringList files = directory.entryList(QStringList(filename), QDir::Files);
-	for (int i = 0; i < files.size(); i++) {
-		if (filename == files[i].toLower()) {
-			return directory.absoluteFilePath(files[i]);
-		}
-		qDebug() << "No match: " << files[i];
-	}
-	
-	return "";
 }

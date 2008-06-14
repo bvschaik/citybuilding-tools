@@ -1,68 +1,26 @@
-#include <QtGui>
-#include <QDebug>
-
 #include "mainwindow.h"
-#include "graphicsfile.h"
-#include "treewidgetfileitem.h"
-#include "treewidgetimageitem.h"
-#include "sgfilerecord.h"
-#include "sgfile.h"
-#include "sgimage.h"
+#include "imagetreeitem.h"
 
-MainWindow::MainWindow() {
-	selectedImage = NULL;
-	
-	imagebox = new ImageBox();
-	//setCentralWidget(imagebox);
-	QSplitter *splitter = new QSplitter(this);
-	
-	treewidget = new QTreeWidget();
-	treewidget->setHeaderLabel("No file loaded");
-	/*
-	QTreeWidgetItem *root = new SgTreeWidgetItem("First bmp");
-	
-	QTreeWidgetItem *child;
-	child = new SgTreeWidgetItem(1);
-	root->addChild(child);
-	
-	child = new SgTreeWidgetItem(2);
-	root->addChild(child);
-	
-	
-	treeWidget->addTopLevelItem(root);
-	*/
-	splitter->addWidget(treewidget);
-	splitter->addWidget(imagebox);
-	splitter->setStretchFactor(0, 0);
-	splitter->setStretchFactor(1, 10);
-	splitter->setSizes(QList<int>() << 200 << 300);
-	setCentralWidget(splitter);
-	
+MainWindow::MainWindow()
+	: QMainWindow()
+{
+	createChildren();
 	createActions();
-    createMenus();
-	
-	//connect(treewidget, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
-	//		this, SLOT(treeItemClicked(QTreeWidgetItem *, int)));
-	//connect(treewidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
-	//		this, SLOT(treeItemClicked(QTreeWidgetItem *, int)));
-	
-	connect(treewidget, SIGNAL(itemSelectionChanged()),
-			this, SLOT(treeSelectionChanged()));
+	createMenu();
 	
 	if (QCoreApplication::arguments().size() > 1) {
 		loadFile(QCoreApplication::arguments().at(1));
 	}
 	
-	resize(500, 400);
+	resize(600, 400);
 }
 
-MainWindow::~MainWindow() {
-	qDebug("Destructor called");
-}
-
+/* Slots */
 void MainWindow::openFile() {
-	if (openFileDialog.exec()) {
-		loadFile(openFileDialog.selectedFiles().at(0));
+	QString newfilename = QFileDialog::getOpenFileName(this, "Load SG file",
+		filename, "Sierra Graphics files (*.sg2 *.sg3)");
+	if (!newfilename.isEmpty()) {
+		loadFile(newfilename);
 	}
 }
 
@@ -70,9 +28,8 @@ void MainWindow::saveFile() {
 	QString pngfilename = QFileDialog::getSaveFileName(this, tr("Save Image"),
 		filename, "PNG File (*.png)");
 	if (!pngfilename.isEmpty()) {
-		QImage *img = imagebox->image();
-		Q_ASSERT(img != NULL);
-		if (img->save(pngfilename, "png")) {
+		Q_ASSERT(!image.isNull());
+		if (image.save(pngfilename, "png")) {
 			qDebug("Image saved");
 		} else {
 			qDebug("Image could NOT be saved");
@@ -80,47 +37,14 @@ void MainWindow::saveFile() {
 	}
 }
 
-void MainWindow::loadFile(const QString &filename) {
-	this->filename = filename;
-	
-	qDebug() << "Filename to open: " << filename;
-	SgFile sgfile(filename);
-	
-	QList<SgFileRecord*> items = sgfile.loadFile();
-	if (items.size() == 0) {
-		QMessageBox::warning(this, tr("Error loading file"),
-			tr("The file you selected is not a valid Sierra Graphics file"));
-	} else {
-		QFileInfo fi(filename);
-		treewidget->setHeaderLabel(fi.fileName());
-		createTree(items);
-	}
-	//imagebox->setImage(new QImage(filename));
-}
-
-void MainWindow::treeItemClicked(QTreeWidgetItem *item, int /* column */) {
-	if (item == NULL) {
-		qDebug("Empty item clicked");
-		clearImage();
-		return;
-	}
-	
-	if (item->type() == TreeWidgetFileItem::Type) {
-		qDebug("File record clicked");
-		clearImage();
-		return;
-	} else if (item->type() != TreeWidgetImageItem::Type) {
-		qDebug("Unknown widget type clicked");
-		return;
-	}
-	
-	TreeWidgetImageItem *imageitem = (TreeWidgetImageItem*) item;
-	
-	loadImage(imageitem->imageRecord());
+void MainWindow::extractAll() {
+	//BatchExtractDialog dialog(this);
+	//dialog.exec();
 }
 
 void MainWindow::treeSelectionChanged() {
-	QList<QTreeWidgetItem*> items = treewidget->selectedItems();
+	
+	QList<QTreeWidgetItem*> items = treeWidget->selectedItems();
 	if (items.size() != 1) {
 		qDebug("No selection");
 		clearImage();
@@ -129,117 +53,108 @@ void MainWindow::treeSelectionChanged() {
 	
 	QTreeWidgetItem *item = items.at(0);
 	
-	if (item->type() == TreeWidgetFileItem::Type) {
-		qDebug("File record clicked");
+	if (item->type() == ImageTreeItem::ItemType) {
+		ImageTreeItem *imageitem = (ImageTreeItem *)item;
+		loadImage(imageitem->image());
+	} else {
 		clearImage();
-		return;
-	} else if (item->type() != TreeWidgetImageItem::Type) {
-		qDebug("Unknown widget type clicked");
+	}
+}
+
+void MainWindow::loadFile(const QString &filename) {
+	treeWidget->clear();
+	treeWidget->setHeaderLabel("No file loaded");
+	clearImage();
+	
+	sgFile = new SgFile(filename);
+	if (!sgFile->load()) {
 		return;
 	}
 	
-	TreeWidgetImageItem *imageitem = (TreeWidgetImageItem*) item;
+	this->filename = filename;
 	
-	loadImage(imageitem->imageRecord());
+	QFileInfo fi(filename);
+	treeWidget->setHeaderLabel(fi.fileName());
+	
+	if (sgFile->bitmapCount() == 1 ||
+			sgFile->imageCount(0) == sgFile->totalImageCount()) {
+		// Just have a long list of images
+		int numImages = sgFile->totalImageCount();
+		for (int i = 0; i < numImages; i++) {
+			QTreeWidgetItem *item = new ImageTreeItem(treeWidget, i,
+				sgFile->image(i));
+		}
+	} else {
+		// Split up by file
+		int numBitmaps = sgFile->bitmapCount();
+		for (int b = 0; b < numBitmaps; b++) {
+			QTreeWidgetItem *bitmapItem =
+				new QTreeWidgetItem(treeWidget,
+					QStringList(sgFile->getBitmapDescription(b)));
+			
+			int numImages = sgFile->imageCount(b);
+			for (int i = 0; i < numImages; i++) {
+				ImageTreeItem *item = new ImageTreeItem(bitmapItem, i,
+					sgFile->image(b, i));
+			}
+		}
+	}
+}
+
+void MainWindow::loadImage(SgImage *img) {
+	image = img->getImage();
+	if (image.isNull()) {
+		imageLabel->setText("Couldn't load image");
+	} else {
+		imageLabel->setPixmap(QPixmap::fromImage(image));
+	}
+	imageLabel->adjustSize();
 }
 
 void MainWindow::clearImage() {
-	imagebox->setImage(NULL);
-	selectedImage = NULL;
-	saveAct->setEnabled(false);
+	imageLabel->setPixmap(QPixmap());
 }
 
-void MainWindow::loadImage(SgImageRecord *imagerecord) {
-	if (imagerecord == selectedImage) {
-		return;
-	}
+/* Creating stuff */
+void MainWindow::createChildren() {
+	QSplitter *splitter = new QSplitter(this);
+	QScrollArea *scroll = new QScrollArea(splitter);
 	
-	QTime t;
-	t.start();
+	treeWidget = new QTreeWidget(splitter);
+	treeWidget->setHeaderLabel("No file loaded");
 	
-	SgImage sgimage(imagerecord, filename);
-	QImage *img = sgimage.loadImage();
+	imageLabel = new QLabel();
+	imageLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	
-	qDebug("Loading image: %d msec", t.restart());
+	scroll->setWidget(imageLabel);
+	imageLabel->show();
 	
-	imagebox->setImage(img);
-	selectedImage = imagerecord;
-	saveAct->setEnabled(true);
+	splitter->addWidget(treeWidget);
+	splitter->addWidget(scroll);
+	splitter->setStretchFactor(0, 0);
+	splitter->setStretchFactor(1, 10);
+	splitter->setSizes(QList<int>() << 200 << 400);
+	setCentralWidget(splitter);
 	
-	qDebug("Setting image: %d msec", t.elapsed());
-	/*
-	image = new QImage("100k.png");
-	imagebox->setImage(image);
-	// 
-	QFile file("images/The_empire.555");
-	if (!file.open(QIODevice::ReadOnly)) {
-		qDebug("unable to open file");
-		return;
-	}
-	
-	QDataStream stream(&file);
-	GraphicsFile graphics(&stream, 2000, 1000);
-	image = graphics.loadImage();
-	if (image == NULL) {
-		qDebug("Image is null!");
-	} else {
-		qDebug("Dimensions: %d x %d", image->width(), image->height());
-	}
-	imagebox->setImage(image);
-	*/
+	connect(treeWidget, SIGNAL(itemSelectionChanged()),
+			this, SLOT(treeSelectionChanged()));
 }
 
 void MainWindow::createActions() {
-	// Open file action
-	openAct = new QAction(tr("&Open"), this);
-	openAct->setShortcut(tr("Ctrl+O"));
-	connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
+	openAction = new QAction("&Open...", this);
+	connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 	
-	// Save file action
-	saveAct = new QAction(tr("&Save"), this);
-	saveAct->setShortcut(tr("Ctrl+S"));
-	saveAct->setEnabled(false);
-	connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
+	saveAction = new QAction("&Save image...", this);
+	connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 	
-	// Exit action
-	exitAct = new QAction(tr("E&xit"), this);
-    exitAct->setShortcut(tr("Ctrl+Q"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
-	
-	// Open file dialog
-	openFileDialog.setDirectory(QDir::homePath());
-	openFileDialog.setFileMode(QFileDialog::ExistingFile);
-	openFileDialog.setFilter(tr("Sierra Graphics Files (*.sg2 *.sg3);;All Files (*)"));
-	openFileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+	extractAllAction = new QAction("&Batch extract...", this);
+	connect(extractAllAction, SIGNAL(triggered()), this, SLOT(extractAll()));
 }
 
-void MainWindow::createMenus() {
-	fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(saveAct);
-    fileMenu->addSeparator();
-    fileMenu->addAction(exitAct);
-}
-
-void MainWindow::createTree(QList<SgFileRecord*> list) {
-	QTreeWidgetItem *item;
-	QTreeWidgetItem *child;
+void MainWindow::createMenu() {
+	QMenu *menu = menuBar()->addMenu("&File");
+	menu->addAction(openAction);
+	menu->addAction(saveAction);
 	
-	// Clear tree first
-	selectedImage = NULL;
-	treewidget->clear();
-	
-	// Add widgets recursively
-	for (int i = 0; i < list.size(); i++) {
-		SgFileRecord *filerec = list.at(i);
-		item = new TreeWidgetFileItem(filerec);
-		
-		// Add child records (images)
-		for (int j = 0; j < filerec->images.size(); j++) {
-			child = new TreeWidgetImageItem(j, filerec->images[j]);
-			item->addChild(child);
-		}
-		
-		treewidget->addTopLevelItem(item);
-	}
+	menu->addAction(extractAllAction);
 }
