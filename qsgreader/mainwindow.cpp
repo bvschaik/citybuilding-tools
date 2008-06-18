@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "imagetreeitem.h"
+#include "gui/extractwizard.h"
 
 MainWindow::MainWindow()
 	: QMainWindow()
@@ -38,6 +39,8 @@ void MainWindow::saveFile() {
 }
 
 void MainWindow::extractAll() {
+	ExtractWizard wizard(this);
+	wizard.exec();
 	//BatchExtractDialog dialog(this);
 	//dialog.exec();
 }
@@ -122,6 +125,7 @@ void MainWindow::createChildren() {
 	
 	treeWidget = new QTreeWidget(splitter);
 	treeWidget->setHeaderLabel("No file loaded");
+	treeWidget->setUniformRowHeights(true);
 	
 	imageLabel = new QLabel();
 	imageLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
