@@ -3,8 +3,10 @@
 #include "gui/extractwizard.h"
 
 MainWindow::MainWindow()
-	: QMainWindow()
+	: QMainWindow(), appname("SGReader")
 {
+	setWindowTitle(appname);
+	
 	createChildren();
 	createActions();
 	createMenu();
@@ -71,12 +73,15 @@ void MainWindow::loadFile(const QString &filename) {
 	
 	sgFile = new SgFile(filename);
 	if (!sgFile->load()) {
+		setWindowTitle(appname);
 		return;
 	}
 	
-	this->filename = filename;
-	
 	QFileInfo fi(filename);
+	
+	this->filename = filename;
+	setWindowTitle(QString("%0 - %1").arg(fi.fileName()).arg(appname));
+	
 	treeWidget->setHeaderLabel(fi.fileName());
 	
 	if (sgFile->bitmapCount() == 1 ||
@@ -97,25 +102,29 @@ void MainWindow::loadFile(const QString &filename) {
 			
 			int numImages = sgFile->imageCount(b);
 			for (int i = 0; i < numImages; i++) {
-				ImageTreeItem *item = new ImageTreeItem(bitmapItem, i,
-					sgFile->image(b, i));
+				new ImageTreeItem(bitmapItem, i, sgFile->image(b, i));
 			}
 		}
 	}
+	treeWidget->scrollToTop();
 }
 
 void MainWindow::loadImage(SgImage *img) {
 	image = img->getImage();
 	if (image.isNull()) {
-		imageLabel->setText("Couldn't load image");
+		imageLabel->setText(QString("Couldn't load image: %0")
+			.arg(img->errorMessage()));
+		saveAction->setEnabled(false);
 	} else {
 		imageLabel->setPixmap(QPixmap::fromImage(image));
+		saveAction->setEnabled(true);
 	}
 	imageLabel->adjustSize();
 }
 
 void MainWindow::clearImage() {
 	imageLabel->setPixmap(QPixmap());
+	saveAction->setEnabled(false);
 }
 
 /* Creating stuff */
@@ -126,6 +135,7 @@ void MainWindow::createChildren() {
 	treeWidget = new QTreeWidget(splitter);
 	treeWidget->setHeaderLabel("No file loaded");
 	treeWidget->setUniformRowHeights(true);
+	treeWidget->setIconSize(QSize(0, 0));
 	
 	imageLabel = new QLabel();
 	imageLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
@@ -146,19 +156,45 @@ void MainWindow::createChildren() {
 
 void MainWindow::createActions() {
 	openAction = new QAction("&Open...", this);
+	openAction->setShortcut(tr("Ctrl+O"));
 	connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 	
 	saveAction = new QAction("&Save image...", this);
+	saveAction->setShortcut(tr("Ctrl+S"));
+	saveAction->setEnabled(false);
 	connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 	
 	extractAllAction = new QAction("&Batch extract...", this);
 	connect(extractAllAction, SIGNAL(triggered()), this, SLOT(extractAll()));
+	
+	exitAction = new QAction(tr("E&xit"), this);
+	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+	
+	helpAction = new QAction(tr("&Help"), this);
+	helpAction->setShortcut(tr("F1"));
+	connect(helpAction, SIGNAL(triggered()), this, SLOT(help()));
+	
+	licenceAction = new QAction(tr("&Licence"), this);
+	connect(licenceAction, SIGNAL(triggered()), this, SLOT(licence()));
+	
+	aboutAction = new QAction(tr("&About %0").arg(appname), this);
+	connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 }
 
 void MainWindow::createMenu() {
-	QMenu *menu = menuBar()->addMenu("&File");
+	QMenu *menu;
+	
+	menu = menuBar()->addMenu("&File");
 	menu->addAction(openAction);
 	menu->addAction(saveAction);
-	
+	menu->addSeparator();
 	menu->addAction(extractAllAction);
+	menu->addSeparator();
+	menu->addAction(exitAction);
+	
+	menu = menuBar()->addMenu("&Help");
+	menu->addAction(helpAction);
+	menu->addSeparator();
+	menu->addAction(licenceAction);
+	menu->addAction(aboutAction);
 }

@@ -17,10 +17,12 @@ class SgBitmap {
 		~SgBitmap();
 		int imageCount() const;
 		QString description() const;
+		QString bitmapName() const;
 		QImage getImage(int id);
 		SgImage *image(int id);
 		void addImage(SgImage *child);
 		QFile *openFile(char isExtern);
+		QString errorMessage(int id) const;
 		
 		enum {
 			RECORD_SIZE = 200

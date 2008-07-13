@@ -58,6 +58,10 @@ QString SgBitmap::description() const {
 		.arg(images.size());
 }
 
+QString SgBitmap::bitmapName() const {
+	return QString(record->filename).remove(".bmp", Qt::CaseInsensitive);
+}
+
 void SgBitmap::addImage(SgImage *child) {
 	images.append(child);
 }
@@ -77,6 +81,14 @@ QImage SgBitmap::getImage(int id) {
 	}
 	
 	return images[id]->getImage();
+}
+
+QString SgBitmap::errorMessage(int id) const {
+	if (id < 0 || id >= images.size()) {
+		return QString();
+	}
+	
+	return images[id]->errorMessage();
 }
 
 QFile *SgBitmap::openFile(char isExtern) {

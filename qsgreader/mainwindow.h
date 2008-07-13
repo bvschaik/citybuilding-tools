@@ -35,12 +35,18 @@ class MainWindow : public QMainWindow {
 		QTreeWidget *treeWidget;
 		QLabel *imageLabel;
 		QString filename;
+		QString appname;
 		QImage image;
 		SgFile *sgFile;
 		
 		QAction *openAction;
 		QAction *saveAction;
 		QAction *extractAllAction;
+		QAction *exitAction;
+		
+		QAction *helpAction;
+		QAction *licenceAction;
+		QAction *aboutAction;
 };
 
 #endif /* MAINWINDOW_H */

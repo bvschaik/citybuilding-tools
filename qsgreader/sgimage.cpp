@@ -86,12 +86,32 @@ QString SgImage::description() const {
 		.arg(workRecord->height);
 }
 
+QString SgImage::fullDescription() const {
+	return QString("ID %7: offset %0, length %1, width %2, height %3, type %5, %6")
+		.arg(workRecord->offset)
+		.arg(workRecord->length)
+		.arg(workRecord->width)
+		.arg(workRecord->height)
+		.arg(workRecord->type)
+		.arg(workRecord->flags[0] ? "external" : "internal")
+		.arg(imageId);
+}
+
 void SgImage::setInvertImage(SgImage *invert) {
 	this->workRecord = invert->record;
 }
 
 void SgImage::setParent(SgBitmap *parent) {
 	this->parent = parent;
+}
+
+QString SgImage::errorMessage() const {
+	return error;
+}
+
+void SgImage::setError(const QString &message) {
+	qDebug(message.toAscii().constData());
+	error = message;
 }
 
 QImage SgImage::getImage() {
@@ -108,21 +128,21 @@ QImage SgImage::getImage() {
 	// END DEBUG ))
 	// Trivial checks
 	if (!parent) {
-		qDebug("Image has no parent");
+		setError("Image has no bitmap parent");
 		return QImage();
 	}
 	if (workRecord->width <= 0 || workRecord->height <= 0) {
-		qDebug("Width or height invalid (%d x %d)",
-			workRecord->width, workRecord->height);
+		setError(QString("Width or height invalid (%0 x %1)")
+			.arg(workRecord->width).arg(workRecord->height));
 		return QImage();
 	} else if (workRecord->length <= 0) {
-		qDebug("No image data available");
+		setError("No image data available");
 		return QImage();
 	}
 	
 	quint8 *buffer = fillBuffer();
 	if (buffer == NULL) {
-		qDebug("Unable to load buffer");
+		qDebug("Unable to load buffer"); // error already set in fillBuffer()
 		return QImage();
 	}
 	
@@ -169,41 +189,43 @@ QImage SgImage::getImage() {
 quint8* SgImage::fillBuffer() {
 	QFile *file = parent->openFile(workRecord->flags[0]);
 	if (file == NULL) {
-		qDebug("Unable to open 555 file");
+		setError("Unable to open 555 file");
 		return NULL;
 	}
 	
 	int data_length = workRecord->length + workRecord->alpha_length;
 	if (data_length <= 0) {
-		qDebug("Data length: %d", data_length);
+		qDebug("Data length: %d", data_length); // not an error per se
 	}
 	char *buffer = new char[data_length];
 	if (buffer == NULL) {
-		qDebug("Cannot allocate %d bytes of memory", data_length);
+		setError(QString("Cannot allocate %0 bytes of memory").arg(data_length));
 		return NULL;
 	}
 	
-//	if (parent->isInternal()) {
-//		file->seek(workRecord->offset - );
-//	} else {
-		// Somehow externals have 1 byte added to their offset
-		file->seek(workRecord->offset - workRecord->flags[0]);
-//	}
+	// Somehow externals have 1 byte added to their offset
+	file->seek(workRecord->offset - workRecord->flags[0]);
 	
 	int data_read = (int)file->read(buffer, data_length);
 	if (data_length != data_read) {
-		qDebug("Unable to read %d bytes from file (read %d bytes)",
-			data_length, data_read);
-		delete[] buffer;
-		return NULL;
-	} // TODO exception when file.atEnd() and need only 4 bytes more
+		if (data_read + 4 == data_length && file->atEnd()) {
+			// Exception for some C3 graphics: last image is 'missing' 4 bytes
+			buffer[data_read] = buffer[data_read+1] = 0;
+			buffer[data_read+2] = buffer[data_read+3] = 0;
+		} else {
+			setError(QString("Unable to read %0 bytes from file (read %1 bytes)")
+				.arg(data_length).arg(data_read));
+			delete[] buffer;
+			return NULL;
+		}
+	}
 	return (quint8*) buffer;
 }
 
 void SgImage::loadPlainImage(QImage *img, quint8 *buffer) {
 	// Check whether the image data is OK
 	if (workRecord->height * workRecord->width * 2 != (int)workRecord->length) {
-		qDebug("Image data length doesn't match image size");
+		setError("Image data length doesn't match image size");
 		return;
 	}
 	
@@ -288,16 +310,19 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 		tile_height = ISOMETRIC_LARGE_TILE_HEIGHT;
 		tile_width  = ISOMETRIC_LARGE_TILE_WIDTH;
 	} else {
-		qDebug("Unknown tile size: %d (height %d, width %d, size %d)",
-			2 * height / size, height, width, size);
+		setError(QString("Unknown tile size: %0 (height %1, width %2, size %3)")
+			.arg(2 * height / size).arg(height).arg(width).arg(size));
 		return;
 	}
 	
 	/* Check if buffer length is enough: (width + 2) * height / 2 * 2bpp */
 	if ((width + 2) * height != (int)workRecord->image_data_length) {
-		qDebug("Image %d: data length doesn't match footprint size: %d vs %d (%d) %d",
-			imageId, (width + 2) * height, workRecord->image_data_length,
-			workRecord->length, workRecord->invert_offset);
+		setError(QString(
+			"Data length doesn't match footprint size: %0 vs %1 (%2) %3")
+			.arg((width + 2) * height)
+			.arg(workRecord->image_data_length)
+			.arg(workRecord->length)
+			.arg(workRecord->invert_offset));
 		return;
 	}
 	

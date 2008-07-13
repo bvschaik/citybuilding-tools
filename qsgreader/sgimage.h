@@ -13,9 +13,11 @@ class SgImage {
 		qint32 invertOffset() const;
 		int bitmapId() const;
 		QString description() const;
+		QString fullDescription() const;
 		void setInvertImage(SgImage *invert);
 		void setParent(SgBitmap *parent);
 		QImage getImage();
+		QString errorMessage() const;
 		
 	private:
 		quint8 *fillBuffer();
@@ -35,9 +37,13 @@ class SgImage {
 		void set555Pixel(QImage *img, int x, int y, quint16 color);
 		void setAlphaPixel(QImage *img, int x, int y, quint8 color);
 		
+		/* Error handling */
+		void setError(const QString &message);
+		
 		SgImageRecord *record;
 		SgImageRecord *workRecord;
 		SgBitmap *parent;
+		QString error;
 		bool invert;
 		int imageId;
 };

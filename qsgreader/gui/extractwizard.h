@@ -1,35 +1,33 @@
 #ifndef EXTRACTWIZARD_H
 #define EXTRACTWIZARD_H
 
-#include <QDialog>
+#include <QWizard>
 #include <QString>
 #include <QStringList>
 
 class QStackedWidget;
 class QPushButton;
 
-class ExtractInputDirPage;
-class ExtractOutputDirPage;
-class ExtractFileListPage;
-class ExtractProgressPage;
+class InputDirPage;
+class OutputDirPage;
+class FileListPage;
+class ProgressPage;
 
-class ExtractWizard : public QDialog {
+class ExtractWizard : public QWizard {
 	Q_OBJECT
 	
 	public:
 		ExtractWizard(QWidget *parent = 0);
 		~ExtractWizard();
 	
-	private slots:
-		void prevClicked();
-		void nextClicked();
-		void changePage(QWidget *page);
+	protected:
+		void closeEvent(QCloseEvent *event);
 	
 	private:
-		ExtractInputDirPage *inputPage;
-		ExtractFileListPage *filePage;
-		ExtractOutputDirPage *outputPage;
-		ExtractProgressPage *progressPage;
+		InputDirPage *inputPage;
+		FileListPage *filePage;
+		OutputDirPage *outputPage;
+		ProgressPage *progressPage;
 		
 		QStackedWidget *stackWidget;
 		QPushButton *nextButton;

@@ -41,6 +41,8 @@ SgFile::SgFile(const QString &filename)
 	: header(NULL)
 {
 	this->filename = filename;
+	QFileInfo fi(filename);
+	this->basefilename = fi.baseName();
 }
 
 SgFile::~SgFile() {
@@ -64,6 +66,10 @@ int SgFile::imageCount(int bitmapId) const {
 	}
 	
 	return bitmaps[bitmapId]->imageCount();
+}
+
+QString SgFile::basename() const {
+	return basefilename;
 }
 
 int SgFile::totalImageCount() const {
@@ -104,12 +110,36 @@ QImage SgFile::getImage(int bitmapId, int imageId) {
 	return bitmaps[bitmapId]->getImage(imageId);
 }
 
+SgBitmap *SgFile::getBitmap(int bitmapId) const {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size()) {
+		return NULL;
+	}
+	
+	return bitmaps[bitmapId];
+}
+
 QString SgFile::getBitmapDescription(int bitmapId) const {
 	if (bitmapId < 0 || bitmapId >= bitmaps.size()) {
 		return QString();
 	}
 	
 	return bitmaps[bitmapId]->description();
+}
+
+QString SgFile::errorMessage(int bitmapId, int imageId) const {
+	if (bitmapId < 0 || bitmapId >= bitmaps.size() ||
+		imageId < 0 || imageId >= bitmaps[bitmapId]->imageCount()) {
+		return QString();
+	}
+	
+	return bitmaps[bitmapId]->errorMessage(imageId);
+}
+
+QString SgFile::errorMessage(int imageId) const {
+	if (imageId < 0 || imageId >= images.size()) {
+		return QString();
+	}
+	return images[imageId]->errorMessage();
 }
 
 bool SgFile::load() {
@@ -137,6 +167,16 @@ bool SgFile::load() {
 		maxBitmapRecords() * SgBitmap::RECORD_SIZE);
 	
 	loadImages(&stream, header->version >= 0xd6);
+	
+	if (bitmaps.size() > 1 && images.size() == bitmaps[0]->imageCount()) {
+		qDebug("SG file has %d bitmaps but only the first is in use",
+			bitmaps.size());
+		// Remove the bitmaps other than the first
+		for (int i = bitmaps.size() - 1; i > 0; i--) {
+			SgBitmap *bmp = bitmaps.takeLast();
+			delete bmp;
+		}
+	}
 	
 	return true;
 }

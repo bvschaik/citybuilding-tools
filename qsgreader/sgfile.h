@@ -17,7 +17,9 @@ class SgFile {
 		int bitmapCount() const;
 		int totalImageCount() const;
 		int imageCount(int bitmapId) const;
+		QString basename() const;
 		
+		SgBitmap *getBitmap(int bitmapId) const;
 		QString getBitmapDescription(int bitmapId) const;
 		
 		SgImage *image(int bitmapId, int imageId) const;
@@ -25,6 +27,9 @@ class SgFile {
 		
 		QImage getImage(int bitmapId, int imageId);
 		QImage getImage(int globalImageId);
+		
+		QString errorMessage(int bitmapId, int imageId) const;
+		QString errorMessage(int globalImageId) const;
 		
 	private:
 		bool checkVersion();
@@ -35,6 +40,7 @@ class SgFile {
 		QList<SgBitmap*> bitmaps;
 		QList<SgImage*> images;
 		QString filename;
+		QString basefilename;
 		SgHeader *header;
 };
 

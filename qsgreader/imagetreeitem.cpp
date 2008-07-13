@@ -18,8 +18,9 @@ SgImage *ImageTreeItem::image() {
 
 void ImageTreeItem::setColumnData() {
 	setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-	setData(0, Qt::DisplayRole, QString("%0: %1").arg(imageId + 1, 5)
+	setText(0, QString("%0: %1").arg(imageId + 1)
 		.arg(imageRecord->description()));
 	//setData(0, Qt::DisplayRole, imageId);
 	//setData(1, Qt::DisplayRole, imageRecord->description());
+	setToolTip(0, imageRecord->fullDescription());
 }
