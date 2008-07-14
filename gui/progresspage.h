@@ -4,6 +4,7 @@
 #include <QWizardPage>
 #include <QProgressBar>
 #include <QLabel>
+#include <QTextEdit>
 
 class ExtractThread;
 
@@ -29,6 +30,7 @@ class ProgressPage : public QWizardPage {
 		QLabel *fileLabel;
 		QLabel *imageLabel;
 		QPushButton *cancelButton;
+		QTextEdit *errorTextEdit;
 };
 
 #endif /* PROGRESSPAGE_H */

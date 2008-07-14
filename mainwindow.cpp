@@ -1,11 +1,14 @@
 #include "mainwindow.h"
 #include "imagetreeitem.h"
+#include "aboutdialog.h"
+#include "licencedialog.h"
 #include "gui/extractwizard.h"
 
 MainWindow::MainWindow()
 	: QMainWindow(), appname("SGReader")
 {
 	setWindowTitle(appname);
+	setWindowIcon(QIcon(":/icon.png"));
 	
 	createChildren();
 	createActions();
@@ -28,10 +31,16 @@ void MainWindow::openFile() {
 }
 
 void MainWindow::saveFile() {
+	QString suggestion = filename.replace(filename.length() - 4, 4, ".png");
 	QString pngfilename = QFileDialog::getSaveFileName(this, tr("Save Image"),
 		filename, "PNG File (*.png)");
 	if (!pngfilename.isEmpty()) {
 		Q_ASSERT(!image.isNull());
+		if (!pngfilename.endsWith(".png", Qt::CaseInsensitive)) {
+			// Don't care if the filename exists already, just overwrite:
+			// user should be smart enough to add .png itself
+			pngfilename += ".png";
+		}
 		if (image.save(pngfilename, "png")) {
 			qDebug("Image saved");
 		} else {
@@ -43,8 +52,22 @@ void MainWindow::saveFile() {
 void MainWindow::extractAll() {
 	ExtractWizard wizard(this);
 	wizard.exec();
-	//BatchExtractDialog dialog(this);
-	//dialog.exec();
+}
+
+void MainWindow::licence() {
+	LicenceDialog dialog(this, appname);
+	dialog.exec();
+}
+
+void MainWindow::about() {
+	AboutDialog dialog(this, appname, QString("1.0 (2008-07-14)"),
+		tr("Copyright (C) 2007, 2008 Bianca van Schaik &lt;pecuniam@gmail.com&gt;"),
+		tr("Read graphics files (*.sg2 and *.sg3) from Impressions citybuilding games.\n\n"
+		"This program is distributed in the hope that it will be useful,\n"
+		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+		"See the GNU General Public License or Help->Licence for more details.\n"));
+	dialog.exec();
 }
 
 void MainWindow::treeSelectionChanged() {

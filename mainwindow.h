@@ -22,6 +22,9 @@ class MainWindow : public QMainWindow {
 		void saveFile();
 		void extractAll();
 		void treeSelectionChanged();
+		//void help();
+		void licence();
+		void about();
 		
 	private:
 		void createChildren();

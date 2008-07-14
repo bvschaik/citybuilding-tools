@@ -89,7 +89,19 @@ void ExtractThread::extractFile(const QString &filename) {
 				img.save(outputDir.filePath(pngfile));
 				extracted++;
 			} else {
-				QString error = bitmap->errorMessage(n);
+				QString error;
+				if (bitmaps == 1) {
+					error = QString("File '%0', image %1: %2")
+						.arg(basename)
+						.arg(n + 1)
+						.arg(bitmap->errorMessage(n));
+				} else {
+					error = QString("File '%0', section '%1', image %2: %3")
+						.arg(basename)
+						.arg(bitmap->bitmapName())
+						.arg(n + 1)
+						.arg(bitmap->errorMessage(n));
+				}
 				errorMessages.append(error);
 				errorImages++;
 			}

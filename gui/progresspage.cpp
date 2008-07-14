@@ -7,10 +7,12 @@
 #include <QAbstractButton>
 #include <QPushButton>
 
+#include <QDebug>
+
 ProgressPage::ProgressPage(QWidget *parent)
 	: QWizardPage(parent), thread(NULL)
 {
-	setTitle("Extracting files... please wait");
+	setTitle("Extracting images... please wait");
 	setButtonText(QWizard::FinishButton, tr("&Close"));
 	
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -23,10 +25,15 @@ ProgressPage::ProgressPage(QWidget *parent)
 	
 	cancelButton = new QPushButton(tr("Cancel extracting"));
 	
+	errorTextEdit = new QTextEdit(this);
+	errorTextEdit->setVisible(false);
+	
 	layout->addWidget(fileLabel);
-	layout->addWidget(imageLabel);
 	layout->addWidget(fileProgress);
+	layout->addSpacing(20);
+	layout->addWidget(imageLabel);
 	layout->addWidget(imageProgress);
+	layout->addWidget(errorTextEdit);
 	layout->addStretch();
 	layout->addWidget(cancelButton);
 	
@@ -71,8 +78,24 @@ bool ProgressPage::isBusy() const {
 void ProgressPage::threadFinished() {
 	qDebug("Thread finished");
 	
-	setTitle("Files extracted");
-	fileProgress->setValue(fileProgress->value() + 1);
+	setTitle("Images extracted");
+	fileLabel->setText(QString("Done. %0 images were extracted, %1 images were skipped (see below)")
+		.arg(thread->extractCount())
+		.arg(thread->errorCount()));
+	//fileProgress->setValue(fileProgress->value() + 1);
+	
+	fileProgress->setVisible(false);
+	imageProgress->setVisible(false);
+	cancelButton->setVisible(false);
+	
+	imageLabel->setText("Error messages:");
+	QStringList errors = thread->errors();
+	if (errors.size()) {
+		errorTextEdit->setPlainText(errors.join("\r\n"));
+	} else {
+		errorTextEdit->setPlainText("No errors.");
+	}
+	errorTextEdit->setVisible(true);
 	
 	emit completeChanged();
 }
@@ -90,7 +113,7 @@ void ProgressPage::fileChanged(const QString &filename, int numFiles) {
 	imageProgress->setMaximum(numFiles);
 	fileLabel->setText(QString("Processing file %0 of %1: %2")
 		.arg(fileid + 1)
-		.arg(fileProgress->maximum() - 1)
+		.arg(fileProgress->maximum())
 		.arg(filename));
 	fileProgress->setValue(fileid);
 }

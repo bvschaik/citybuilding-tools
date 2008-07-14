@@ -37,7 +37,7 @@ InputDirPage::InputDirPage(QWidget *parent)
 
 void InputDirPage::browseClicked() {
 	QString dirname = QFileDialog::getExistingDirectory(this,
-		tr("Choose Directory"), "", 0);
+		tr("Choose Directory"), inputLineEdit->text(), 0);
 	
 	if (!dirname.isEmpty()) {
 		inputLineEdit->setText(dirname);
