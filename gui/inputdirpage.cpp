@@ -37,7 +37,7 @@ InputDirPage::InputDirPage(QWidget *parent)
 
 void InputDirPage::browseClicked() {
 	QString dirname = QFileDialog::getExistingDirectory(this,
-		tr("Choose Directory"), inputLineEdit->text(), 0);
+		tr("Choose the folder where the .sg2/.sg3 files are located"), inputLineEdit->text());
 	
 	if (!dirname.isEmpty()) {
 		inputLineEdit->setText(dirname);

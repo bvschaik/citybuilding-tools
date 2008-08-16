@@ -53,7 +53,7 @@ OutputDirPage::OutputDirPage(QWidget *parent)
 
 void OutputDirPage::browseClicked() {
 	QString dirname = QFileDialog::getExistingDirectory(this,
-		tr("Choose Directory"), outputLineEdit->text(), 0);
+		tr("Choose the folder where you'd like to store the images"), outputLineEdit->text());
 	
 	if (!dirname.isEmpty()) {
 		outputLineEdit->setText(dirname);
