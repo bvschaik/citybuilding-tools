@@ -16,7 +16,7 @@ public:
 	SgImageRecord(QDataStream *stream, bool includeAlpha) {
 		*stream >> offset;
 		*stream >> length;
-		*stream >> image_data_length;
+		*stream >> uncompressed_length;
 		stream->skipRawData(4);
 		*stream >> invert_offset;
 		*stream >> width;
@@ -37,12 +37,11 @@ public:
 	
 	quint32 offset;
 	quint32 length;
-	quint32 image_data_length;
+	quint32 uncompressed_length;
 	/* 4 zero bytes: */
 	qint32 invert_offset;
 	qint16 width;
 	qint16 height;
-	quint16 unknown[2];
 	/* 26 unknown bytes, mostly zero, first four are 2 shorts */
 	quint16 type;
 	/* 4 flag/option-like bytes: */
@@ -119,7 +118,7 @@ QImage SgImage::getImage() {
 	/*
 	if ((imageId >= 359 && imageId <= 368) || imageId == 459) {
 		qDebug("Record %d", imageId);
-		qDebug("  offet %d; length %d; length2 %d", record->offset, record->length, record->image_data_length);
+		qDebug("  offet %d; length %d; length2 %d", record->offset, record->length, record->uncompressed_length);
 		qDebug("  invert %d; width %d; height %d", record->invert_offset, record->width, record->height);
 		qDebug("  type %d; flags %d %d %d %d; bitmap %d", record->type,
 			record->flags[0], record->flags[1], record->flags[2], record->flags[3], record->bitmap_id);
@@ -240,8 +239,8 @@ void SgImage::loadPlainImage(QImage *img, quint8 *buffer) {
 void SgImage::loadIsometricImage(QImage *img, quint8 *buffer) {
 	
 	writeIsometricBase(img, buffer);
-	writeTransparentImage(img, &buffer[workRecord->image_data_length],
-		workRecord->length - workRecord->image_data_length);
+	writeTransparentImage(img, &buffer[workRecord->uncompressed_length],
+		workRecord->length - workRecord->uncompressed_length);
 }
 
 void SgImage::loadSpriteImage(QImage *img, quint8 *buffer) {
@@ -316,11 +315,11 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 	}
 	
 	/* Check if buffer length is enough: (width + 2) * height / 2 * 2bpp */
-	if ((width + 2) * height != (int)workRecord->image_data_length) {
+	if ((width + 2) * height != (int)workRecord->uncompressed_length) {
 		setError(QString(
 			"Data length doesn't match footprint size: %0 vs %1 (%2) %3")
 			.arg((width + 2) * height)
-			.arg(workRecord->image_data_length)
+			.arg(workRecord->uncompressed_length)
 			.arg(workRecord->length)
 			.arg(workRecord->invert_offset));
 		return;
