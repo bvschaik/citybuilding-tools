@@ -195,7 +195,7 @@ void SgFile::loadImages(QDataStream *stream, bool includeAlpha) {
 	SgImage dummy(0, stream, includeAlpha);
 	
 	for (int i = 0; i < header->num_image_records; i++) {
-		SgImage *image = new SgImage(i, stream, includeAlpha);
+		SgImage *image = new SgImage(i + 1, stream, includeAlpha);
 		qint32 invertOffset = image->invertOffset();
 		if (invertOffset < 0 && (i + invertOffset) >= 0) {
 			image->setInvertImage(images[i + invertOffset]);
