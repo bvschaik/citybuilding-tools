@@ -62,6 +62,9 @@ ConverterTab::ConverterTab(ConverterTab::FileType from, ConverterTab::FileType t
     connect(convertButton, SIGNAL(clicked()), SLOT(convertFile()));
 }
 
+ConverterTab::~ConverterTab()
+{}
+
 void ConverterTab::inputBrowse()
 {
     QString inputFileName = QFileDialog::getOpenFileName(this,
@@ -119,5 +122,3 @@ const QString &ConverterTab::typeExt(ConverterTab::FileType type)
     static const QString xml(".xml");
     return type == ENG ? eng : xml;
 }
-
-#include "convertertab.moc"

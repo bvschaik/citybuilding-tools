@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.9)
 project(engconverter)
 
 find_package(Qt4 REQUIRED)
@@ -16,7 +16,8 @@ set(engconverter_SRCS
     textfilexmlstream.cpp
 )
 
-qt4_automoc(${engconverter_SRCS})
+set(CMAKE_AUTOMOC TRUE)
+
 add_executable(engconverter ${engconverter_SRCS})
 target_link_libraries(engconverter ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 

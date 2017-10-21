@@ -33,6 +33,7 @@ public:
     };
 
     ConverterTab(FileType from, FileType to, QWidget *parent = 0);
+    virtual ~ConverterTab();
 
 private slots:
     void inputBrowse();

@@ -54,5 +54,3 @@ void EngConverter::showHelp()
 {
     // TODO implement
 }
-
-#include "engconverter.moc"
