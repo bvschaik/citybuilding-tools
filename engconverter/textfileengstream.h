@@ -33,7 +33,7 @@ public:
      * \param device Device to read from
      * \return True on success, false on failure
      */
-    bool read(TextFile &file, QIODevice &device);
+    bool read(TextFile &file, QIODevice &device, Logger &logger);
 
     /**
      * Write 'file' to 'device' in ENG format
@@ -41,11 +41,11 @@ public:
      * \param device Device to write to
      * \return True on success, false on failure
      */
-    bool write(TextFile &file, QIODevice &device);
+    bool write(TextFile &file, QIODevice &device, Logger &logger);
 
 private:
     void prepareDataStream(QDataStream &stream);
-    bool readFile(TextFile &file, QDataStream &stream);
+    bool readFile(TextFile &file, QDataStream &stream, Logger &logger);
     void writeEmptyEntries(QDataStream &stream, int lastWrittenIndex, int nextIndex, int offset);
 };
 

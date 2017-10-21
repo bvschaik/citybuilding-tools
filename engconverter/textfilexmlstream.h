@@ -36,7 +36,7 @@ public:
      * \param device Device to read from
      * \return True on success, false on failure
      */
-    bool read(TextFile &file, QIODevice &device);
+    bool read(TextFile &file, QIODevice &device, Logger &logger);
 
     /**
      * Write 'file' to 'device' in XML format
@@ -44,13 +44,13 @@ public:
      * \param device Device to write to
      * \return True on success, false on failure
      */
-    bool write(TextFile &file, QIODevice &device);
+    bool write(TextFile &file, QIODevice &device, Logger &logger);
 
 private:
-    bool readFile(TextFile &file, QXmlStreamReader &xml);
-    bool readOpenTag(QXmlStreamReader &xml, const QString &tag);
-    bool readCloseTag(QXmlStreamReader &xml, const QString &tag);
-    bool readGroup(TextFile &file, QXmlStreamReader &xml);
+    bool readFile(TextFile &file, QXmlStreamReader &xml, Logger &logger);
+    bool readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
+    bool readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
+    bool readGroup(TextFile &file, QXmlStreamReader &xml, Logger &logger);
     void writeGroup(const TextGroup &group, QXmlStreamWriter &xml);
 };
 

@@ -20,6 +20,7 @@
 #define TEXTFILE_H
 
 #include "textgroup.h"
+#include "logger.h"
 
 #include <QDataStream>
 #include <QList>
@@ -62,30 +63,34 @@ public:
     /**
      * Read text from device in ENG format
      * \param device Device to read from
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool readFromEng(QIODevice &device);
+    bool readFromEng(QIODevice &device, Logger &logger);
 
     /**
      * Read text from device in XML format
      * \param device Device to read from
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool readFromXml(QIODevice &device);
+    bool readFromXml(QIODevice &device, Logger &logger);
 
     /**
      * Write text to device in ENG format
      * \param device Device to write to
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool writeToEng(QIODevice &device);
+    bool writeToEng(QIODevice &device, Logger &logger);
 
     /**
      * Write text to device in XML format
      * \param device Device to write to
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool writeToXml(QIODevice &device);
+    bool writeToXml(QIODevice &device, Logger &logger);
 
 private:
     bool m_indexWithCounts;

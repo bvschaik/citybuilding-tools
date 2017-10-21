@@ -32,23 +32,23 @@ enum {
     MAX_DATA_SIZE = 1000000
 };
 
-bool TextFileEngStream::read(TextFile &file, QIODevice &device)
+bool TextFileEngStream::read(TextFile &file, QIODevice &device, Logger &logger)
 {
     if (!device.open(QIODevice::ReadOnly)) {
-        // TODO Unable to open file %s for reading
+        logger.error(QString("Unable to open ENG file for reading: %1").arg(device.errorString()));
         return false;
     }
     
     QDataStream stream(&device);
     prepareDataStream(stream);
 
-    bool result = readFile(file, stream);
+    bool result = readFile(file, stream, logger);
     
     device.close();
     return result;
 }
 
-bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream)
+bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream, Logger &logger)
 {
     // header
     char rawName[17];
@@ -75,7 +75,7 @@ bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream)
     char rawText[MAX_DATA_SIZE + 1];
     int textSize = stream.readRawData(rawText, MAX_DATA_SIZE);
     if (!stream.atEnd()) {
-        // TODO Data portion too large
+        logger.warn("Data part of the file is too large, max supported is 1 MB");
     }
     rawText[textSize] = 0; // ensure end-of-string
     // remove trailing \0's
@@ -89,7 +89,7 @@ bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream)
         int endOffset = i + 1 == file.m_groups.size() ? textSize : file.m_groups.at(i + 1).fileOffset();
         
         if (startOffset > textSize || startOffset > endOffset) {
-            // TODO Invalid data offset for group %d, group.id()
+            logger.error(QString("Invalid data offset for group %1").arg(group.id()));
             return false;
         }
         
@@ -113,10 +113,10 @@ static bool compareTextGroup(const TextGroup &g1, const TextGroup &g2)
     return g1.id() < g2.id();
 }
 
-bool TextFileEngStream::write(TextFile &file, QIODevice &device)
+bool TextFileEngStream::write(TextFile &file, QIODevice &device, Logger &logger)
 {
     if (!device.open(QIODevice::WriteOnly)) {
-        // TODO Unable to open file %s for writing
+        logger.error(QString("Unable to open ENG file for writing: %1").arg(device.errorString()));
         return false;
     }
 
@@ -127,7 +127,7 @@ bool TextFileEngStream::write(TextFile &file, QIODevice &device)
 
     QByteArray name = file.m_name.toAscii();
     if (name.length() > 16) {
-        // TODO Name '%s' is longer than 16 characters and will be truncated
+        logger.warn(QString("Name '%1' is longer than 16 characters and will be truncated").arg(file.m_name));
     }
     stream.writeRawData(name.leftJustified(16, 0, true).data(), 16);
     qint32 groups = file.maxGroupId() + 1;

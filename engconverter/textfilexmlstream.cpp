@@ -22,24 +22,24 @@
 #include "textgroup.h"
 
 
-bool TextFileXmlStream::read(TextFile &file, QIODevice &device)
+bool TextFileXmlStream::read(TextFile &file, QIODevice &device, Logger &logger)
 {
     if (!device.open(QIODevice::ReadOnly)) {
-        // TODO Unable to open file %s for reading
+        logger.error(QString("Unable to open XML file for reading: %1").arg(device.errorString()));
         return false;
     }
     
     QXmlStreamReader xml(&device);
-    bool result = readFile(file, xml);
+    bool result = readFile(file, xml, logger);
     
     device.close();
     return result;
 }
 
-bool TextFileXmlStream::readFile(TextFile &file, QXmlStreamReader &xml)
+bool TextFileXmlStream::readFile(TextFile &file, QXmlStreamReader &xml, Logger &logger)
 {
-    if (!readOpenTag(xml, "strings")) {
-        // TODO Unable to find root <strings> element
+    if (!readOpenTag(xml, "strings", logger)) {
+        logger.error("Unable to find root <strings> element");
         return false;
     }
     if (xml.attributes().hasAttribute("name")) {
@@ -48,15 +48,15 @@ bool TextFileXmlStream::readFile(TextFile &file, QXmlStreamReader &xml)
     if (xml.attributes().hasAttribute("indexWithCounts")) {
         file.m_indexWithCounts = xml.attributes().value("indexWithCounts").toString() != "false";
     }
-    while (readOpenTag(xml, "group")) {
-        if (!readGroup(file, xml) || !readCloseTag(xml, "group")) {
+    while (readOpenTag(xml, "group", logger)) {
+        if (!readGroup(file, xml, logger) || !readCloseTag(xml, "group", logger)) {
             return false;
         }
     }
-    return readCloseTag(xml, "strings");
+    return readCloseTag(xml, "strings", logger);
 }
 
-bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag)
+bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger)
 {
     if (xml.isStartElement() && xml.name() == tag) {
         return true;
@@ -73,27 +73,28 @@ bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag)
                 continue;
                 
             case QXmlStreamReader::Invalid:
-                // TODO Invalid XML file: %s, xml.errorString()
+                logger.error(QString("Invalid XML: %s").arg(xml.errorString()));
                 return false;
             case QXmlStreamReader::EndDocument:
             case QXmlStreamReader::EndElement:
-                // TODO Unexpected end of EndElement
+                logger.error("Invalid XML: unexpected end of element");
                 return false;
                 
             case QXmlStreamReader::StartElement:
                 if (xml.name() == tag) {
                     return true;
                 } else {
-                    // TODO Invalid XML: expected %s, got %s
+                    logger.error(QString("Invalid XML: expected tag <%1>, got <%2>")
+                            .arg(tag, xml.name().toString()));
                     return false;
                 }
         }
     }
-    // TODO Unexpected end of document
+    logger.error("Invalid XML: unexpected end of file");
     return false;
 }
 
-bool TextFileXmlStream::readCloseTag(QXmlStreamReader &xml, const QString &tag)
+bool TextFileXmlStream::readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger)
 {
     if (xml.isEndElement() && xml.name() == tag) {
         return true;
@@ -104,45 +105,48 @@ bool TextFileXmlStream::readCloseTag(QXmlStreamReader &xml, const QString &tag)
             return true;
         }
     }
-    // TODO End element </%s> not found
+    logger.error(QString("Invalid XML: end element </%1> not found").arg(tag));
     return false;
 }
 
-bool TextFileXmlStream::readGroup(TextFile &file, QXmlStreamReader &xml)
+bool TextFileXmlStream::readGroup(TextFile &file, QXmlStreamReader &xml, Logger &logger)
 {
     if (!xml.attributes().hasAttribute("id")) {
-        // TODO Group does not have an ID attribute
+        logger.error("Group does not have an ID attribute");
         return false;
     }
     bool ok;
-    int id = xml.attributes().value("id").toString().toInt(&ok);
+    QString idString = xml.attributes().value("id").toString();
+    int id = idString.toInt(&ok);
     if (!ok) {
-        // TODO Group ID is not an integer: %s
+        logger.error(QString("Group ID is not an integer: %1").arg(idString));
         return false;
     }
     TextGroup group(id);
     int index = 0;
-    while (readOpenTag(xml, "string")) {
-        int textId = xml.attributes().value("id").toString().toInt(&ok);
+    while (readOpenTag(xml, "string", logger)) {
+        QString textIdString = xml.attributes().value("id").toString();
+        int textId = textIdString.toInt(&ok);
         if (!ok) {
-            // TODO String ID is not an integer: %s
+            logger.error(QString("String ID is not an integer: %1").arg(textIdString));
+            return false;
         }
         if (textId != group.size()) {
-            // TODO Strings in group %d are not ordered properly
+            logger.error(QString("Strings in group %1 are not ordered properly").arg(id));
             return false;
         }
         index++;
         group.add(xml.readElementText());
-        readCloseTag(xml, "string");
+        readCloseTag(xml, "string", logger);
     }
     file.m_groups.append(group);
     return true;
 }
 
-bool TextFileXmlStream::write(TextFile &file, QIODevice &device)
+bool TextFileXmlStream::write(TextFile &file, QIODevice &device, Logger &logger)
 {
     if (!device.open(QIODevice::WriteOnly)) {
-        // TODO Unable to open file %s for writing
+        logger.error(QString("Unable to open XML file for writing: %1").arg(device.errorString()));
         return false;
     }
     QXmlStreamWriter xml(&device);

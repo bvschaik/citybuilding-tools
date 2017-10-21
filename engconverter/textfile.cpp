@@ -68,22 +68,22 @@ int TextFile::totalWords() const
     return total;
 }
 
-bool TextFile::readFromEng(QIODevice &device)
+bool TextFile::readFromEng(QIODevice &device, Logger &logger)
 {
-    return TextFileEngStream().read(*this, device);
+    return TextFileEngStream().read(*this, device, logger);
 }
 
-bool TextFile::writeToEng(QIODevice &device)
+bool TextFile::writeToEng(QIODevice &device, Logger &logger)
 {
-    return TextFileEngStream().write(*this, device);
+    return TextFileEngStream().write(*this, device, logger);
 }
 
-bool TextFile::readFromXml(QIODevice &device)
+bool TextFile::readFromXml(QIODevice &device, Logger &logger)
 {
-    return TextFileXmlStream().read(*this, device);
+    return TextFileXmlStream().read(*this, device, logger);
 }
 
-bool TextFile::writeToXml(QIODevice &device)
+bool TextFile::writeToXml(QIODevice &device, Logger &logger)
 {
-    return TextFileXmlStream().write(*this, device);
+    return TextFileXmlStream().write(*this, device, logger);
 }
