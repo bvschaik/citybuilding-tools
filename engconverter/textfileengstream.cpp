@@ -78,8 +78,8 @@ bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream, Logger &lo
         logger.warn("Data part of the file is too large, max supported is 1 MB");
     }
     rawText[textSize] = 0; // ensure end-of-string
-    // remove trailing \0's
-    while (textSize > 0 && rawText[textSize - 1] == 0) {
+    // remove duplicate trailing \0's
+    while (textSize > 0 && rawText[textSize - 1] == 0 && rawText[textSize - 2] == 0) {
         textSize--;
     }
 
@@ -88,8 +88,11 @@ bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream, Logger &lo
         int startOffset = group.fileOffset();
         int endOffset = i + 1 == file.m_groups.size() ? textSize : file.m_groups.at(i + 1).fileOffset();
         
-        if (startOffset > textSize || startOffset > endOffset) {
-            logger.error(QString("Invalid data offset for group %1").arg(group.id()));
+        if (startOffset > textSize || endOffset > textSize || startOffset > endOffset || startOffset < 0) {
+            logger.error(QString("Invalid data offset for group %1: %2-%3")
+                .arg(QString::number(group.id()))
+                .arg(QString::number(startOffset))
+                .arg(QString::number(endOffset)));
             return false;
         }
         
