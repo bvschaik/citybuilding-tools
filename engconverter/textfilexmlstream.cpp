@@ -77,7 +77,6 @@ bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag, L
                 return false;
             case QXmlStreamReader::EndDocument:
             case QXmlStreamReader::EndElement:
-                logger.error("Invalid XML: unexpected end of element");
                 return false;
                 
             case QXmlStreamReader::StartElement:
