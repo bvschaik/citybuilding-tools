@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 2.6)
+project(engconverter)
+
+find_package(Qt4 REQUIRED)
+
+include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
+
+set(engconverter_SRCS
+    engconverter.cpp
+    convertertab.cpp
+    main.cpp
+    logger.cpp
+    textfile.cpp
+    textgroup.cpp
+    textfileengstream.cpp
+    textfilexmlstream.cpp
+)
+
+qt4_automoc(${engconverter_SRCS})
+add_executable(engconverter ${engconverter_SRCS})
+target_link_libraries(engconverter ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+
+install(TARGETS engconverter RUNTIME DESTINATION bin)
