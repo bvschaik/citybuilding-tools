@@ -70,6 +70,7 @@ bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag, L
             case QXmlStreamReader::Characters:
             case QXmlStreamReader::EntityReference:
             case QXmlStreamReader::ProcessingInstruction:
+            case QXmlStreamReader::NoToken:
                 continue;
                 
             case QXmlStreamReader::Invalid:
@@ -165,6 +166,7 @@ bool TextFileXmlStream::write(TextFile &file, QIODevice &device, Logger &logger)
     xml.writeEndDocument();
     
     device.close();
+    return true;
 }
 
 void TextFileXmlStream::writeGroup(const TextGroup &group, QXmlStreamWriter &xml)
