@@ -63,7 +63,7 @@ bool MessageFileEngStream::readFile(MessageFile &file, QDataStream &stream, Logg
     file.m_totalEntries = total;
 
     for (int id = 0; id < total; id++) {
-        readMessageEntry(id, file, stream, logger);
+        readMessageEntry(id, file, stream);
     }
     
     char rawText[MAX_DATA_SIZE + 1];
@@ -119,7 +119,7 @@ static int readInt(QDataStream &stream)
     return value;
 }
 
-void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, QDataStream &stream, Logger &logger)
+void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, QDataStream &stream)
 {
     MessageEntry entry(id);
 
@@ -210,7 +210,7 @@ bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, Logger &l
         writeEmptyEntries(stream, lastWrittenIndex, entry.id());
         lastWrittenIndex = entry.id();
 
-        writeMessageEntry(entry, file, stream, textData);
+        writeMessageEntry(entry, stream, textData);
     }
     writeEmptyEntries(stream, lastWrittenIndex, file.m_totalEntries);
     textData.append((char) 0);
@@ -227,7 +227,7 @@ void MessageFileEngStream::writeEmptyEntries(QDataStream &eng, int lastWrittenIn
     }
 }
 
-void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, MessageFile &file, QDataStream &stream, QByteArray &textData)
+void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, QDataStream &stream, QByteArray &textData)
 {
     // write texts to textData and store the offsets
     writeStringContent(entry.video(), textData);

@@ -52,10 +52,10 @@ public:
 private:
     void prepareDataStream(QDataStream &stream);
     bool readFile(MessageFile &file, QDataStream &stream, Logger &logger);
-    void readMessageEntry(int id, MessageFile &file, QDataStream &stream, Logger &logger);
+    void readMessageEntry(int id, MessageFile &file, QDataStream &stream);
     bool readStringContent(MessageEntry::String &target, const char *rawData, int textSize, int id, const QString &field, Logger &logger);
     void writeEmptyEntries(QDataStream &eng, int lastWrittenIndex, int nextIndex);
-    void writeMessageEntry(MessageEntry &entry, MessageFile &file, QDataStream &stream, QByteArray &textData);
+    void writeMessageEntry(MessageEntry &entry, QDataStream &stream, QByteArray &textData);
     void writeStringContent(MessageEntry::String &string, QByteArray &textData);
 };
 
