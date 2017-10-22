@@ -23,6 +23,7 @@
 
 #include "fileconverter.h"
 
+#include "messagefile.h"
 #include "textfile.h"
 
 #include <QDataStream>
@@ -38,8 +39,8 @@ bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, Logger 
         success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        success = false;
-        logger.error("Message (MM) files are not supported yet");
+        MessageFile file;
+        success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
     } else {
         success = false;
         logger.error("Unknown input file type");
@@ -69,7 +70,7 @@ bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, Logger 
 FileConverter::FileType FileConverter::determineEngFileType(QFile &file, Logger &logger)
 {
     if (!file.open(QIODevice::ReadOnly)) {
-        logger.error("Unable to open input file");
+        logger.error(QString("Unable to open input file: %1").arg(file.errorString()));
         return TYPE_UNKNOWN;
     }
     QDataStream stream(&file);
@@ -102,7 +103,7 @@ FileConverter::FileType FileConverter::determineEngFileType(QFile &file, Logger 
 FileConverter::FileType FileConverter::determineXmlFileType(QFile &file, Logger &logger)
 {
     if (!file.open(QIODevice::ReadOnly)) {
-        logger.error("Unable to open input file");
+        logger.error(QString("Unable to open input file: %1").arg(file.errorString()));
         return TYPE_UNKNOWN;
     }
     QXmlStreamReader xml(&file);

@@ -36,6 +36,8 @@ public:
         int graphic;
         int x;
         int y;
+
+        bool isEmpty() const;
     };
     class Window
     {
@@ -50,23 +52,27 @@ public:
     public:
         int offset;
         QString text;
+
+        bool isEmpty() const;
     };
     class StringWithPosition : public String
     {
     public:
         int x;
         int y;
+
+        bool isEmpty() const;
     };
-    
+
 public:
     /**
      * Creates a new entry with the specified ID
      * \param id ID of the entry
      */
     MessageEntry(int id);
-    
+
     int id() const;
-    
+
     int type() const;
     void setType(int type);
 

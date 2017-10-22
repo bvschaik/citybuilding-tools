@@ -20,6 +20,7 @@ set(engconverter_SRCS
     messageentry.cpp
     messagefile.cpp
     messagefileengstream.cpp
+    messagefilexmlstream.cpp
 )
 
 set(CMAKE_AUTOMOC TRUE)

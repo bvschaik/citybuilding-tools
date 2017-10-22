@@ -105,24 +105,23 @@ bool MessageEntry::isEmpty() const
     if (m_window.x || m_window.y || m_window.width || m_window.height) {
         return false;
     }
-    if (m_image1.graphic || m_image1.x || m_image1.y) {
+    if (!m_image1.isEmpty() || !m_image2.isEmpty()) {
         return false;
     }
-    if (m_image2.graphic || m_image2.x || m_image2.y) {
-        return false;
-    }
-    if (m_title.offset || m_title.x || m_title.y) {
-        return false;
-    }
-    if (m_subtitle.offset || m_subtitle.x || m_subtitle.y) {
-        return false;
-    }
-    if (m_video.offset || m_video.x || m_video.y) {
-        return false;
-    }
-    if (m_content.offset) {
-        return false;
-    }
-    return true;
+    return m_title.isEmpty() && m_subtitle.isEmpty() && m_video.isEmpty() && m_content.isEmpty();
 }
 
+bool MessageEntry::Image::isEmpty() const
+{
+    return !graphic && !x && !y;
+}
+
+bool MessageEntry::String::isEmpty() const
+{
+    return offset == 0 && text.isEmpty();
+}
+
+bool MessageEntry::StringWithPosition::isEmpty() const
+{
+    return offset == 0 && text.isEmpty() && !x && !y;
+}

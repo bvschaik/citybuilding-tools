@@ -21,40 +21,41 @@
  * SOFTWARE.
  */
 
+#ifndef MESSAGEFILEXMLSTREAM_H
+#define MESSAGEFILEXMLSTREAM_H
+
 #include "messagefile.h"
+#include "messageentry.h"
+#include "logger.h"
 
-#include "messagefileengstream.h"
-#include "messagefilexmlstream.h"
+#include <QIODevice>
+#include <QXmlStreamWriter>
 
-int MessageFile::maxEntryId() const
+/**
+ * Read/write a message (MM) file in XML format
+ */
+class MessageFileXmlStream
 {
-    if (m_entries.isEmpty()) {
-        return 0;
-    }
-    return m_entries.at(m_entries.size() - 1).id();
-}
+public:
+    /**
+     * Read data from XML file 'device' into 'file'
+     * \param file File data class to read into
+     * \param device Device to read from
+     * \return True on success, false on failure
+     */
+    bool read(MessageFile &file, QIODevice &device, Logger &logger);
 
-int MessageFile::totalEntries() const
-{
-    return m_totalEntries;
-}
+    /**
+     * Write 'file' to 'device' in XML format
+     * \param file File data class to write
+     * \param device Device to write to
+     * \return True on success, false on failure
+     */
+    bool write(MessageFile &file, QIODevice &device, Logger &logger);
 
-bool MessageFile::readFromEng(QIODevice &device, Logger &logger)
-{
-    return MessageFileEngStream().read(*this, device, logger);
-}
+private:
+    void writeMessageEntry(MessageEntry &entry, QXmlStreamWriter &xml);
+    void writeText(const MessageEntry::StringWithPosition &str, const QString &tag, QXmlStreamWriter &xml);
+};
 
-bool MessageFile::writeToEng(QIODevice &device, Logger &logger)
-{
-    return MessageFileEngStream().write(*this, device, logger);
-}
-
-bool MessageFile::readFromXml(QIODevice &device, Logger &logger)
-{
-    return MessageFileXmlStream().read(*this, device, logger);
-}
-
-bool MessageFile::writeToXml(QIODevice &device, Logger &logger)
-{
-    return MessageFileXmlStream().write(*this, device, logger);
-}
+#endif // MESSAGEFILEXMLSTREAM_H
