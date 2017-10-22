@@ -6,9 +6,12 @@ find_package(Qt4 REQUIRED)
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(engconverter_SRCS
+    # UI-related
     engconverter.cpp
     convertertab.cpp
     main.cpp
+    # Conversion
+    fileconverter.cpp
     logger.cpp
     textfile.cpp
     textgroup.cpp

@@ -23,7 +23,7 @@
 
 #include "convertertab.h"
 
-#include "textfile.h"
+#include "fileconverter.h"
 #include "logger.h"
 
 #include <QtGui/QtGui>
@@ -100,13 +100,13 @@ void ConverterTab::convertFile()
 {
     QFile inputFile(inputFileEdit->text());
     QFile outputFile(outputFileEdit->text());
-    TextFile file;
+    FileConverter converter;
     Logger logger;
     bool success;
     if (fromType == ENG) {
-        success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
+        success = converter.convertEngToXml(inputFile, outputFile, logger);
     } else {
-        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
+        success = converter.convertXmlToEng(inputFile, outputFile, logger);
     }
     QString firstLine = success ? tr("Conversion OK") : tr("*** Conversion FAILED ***");
     
