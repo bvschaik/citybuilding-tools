@@ -17,6 +17,9 @@ set(engconverter_SRCS
     textgroup.cpp
     textfileengstream.cpp
     textfilexmlstream.cpp
+    messageentry.cpp
+    messagefile.cpp
+    messagefileengstream.cpp
 )
 
 set(CMAKE_AUTOMOC TRUE)
