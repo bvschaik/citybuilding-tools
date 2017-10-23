@@ -39,7 +39,7 @@ public:
 
         bool isEmpty() const;
     };
-    class Window
+    class Dialog
     {
     public:
         int x;
@@ -81,7 +81,7 @@ public:
 
     Image &image2();
 
-    Window &window();
+    Dialog &dialog();
 
     bool urgent() const;
     void setUrgent(bool urgent);
@@ -106,7 +106,7 @@ private:
     int m_subtype;
     Image m_image;
     Image m_image2;
-    Window m_window;
+    Dialog m_dialog;
     bool m_urgent;
     StringWithPosition m_title;
     StringWithPosition m_subtitle;

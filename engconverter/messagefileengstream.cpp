@@ -127,7 +127,7 @@ void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, QDataStre
     entry.setSubtype(readShort(stream));
     stream.skipRawData(2); // unused short
 
-    MessageEntry::Window &window = entry.window();
+    MessageEntry::Dialog &window = entry.dialog();
     window.x = readShort(stream);
     window.y = readShort(stream);
     window.width = readShort(stream);
@@ -239,7 +239,7 @@ void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, QDataStream &s
     stream << (qint16) entry.subtype();
     stream << (qint16) 0; // unused short
 
-    MessageEntry::Window &window = entry.window();
+    MessageEntry::Dialog &window = entry.dialog();
     stream << (qint16) window.x;
     stream << (qint16) window.y;
     stream << (qint16) window.width;

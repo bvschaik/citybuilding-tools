@@ -72,9 +72,9 @@ void MessageEntry::setUrgent(bool urgent)
     m_urgent = urgent;
 }
 
-MessageEntry::Window &MessageEntry::window()
+MessageEntry::Dialog &MessageEntry::dialog()
 {
-    return m_window;
+    return m_dialog;
 }
 
 MessageEntry::StringWithPosition &MessageEntry::title()

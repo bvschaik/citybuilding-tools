@@ -64,12 +64,12 @@ void MessageFileXmlStream::writeMessageEntry(MessageEntry &entry, QXmlStreamWrit
     xml.writeAttribute("type", QString::number(entry.type()));
     xml.writeAttribute("subtype", QString::number(entry.subtype()));
 
-    const MessageEntry::Window &window = entry.window();
-    xml.writeEmptyElement("window");
-    xml.writeAttribute("x", QString::number(window.x));
-    xml.writeAttribute("y", QString::number(window.y));
-    xml.writeAttribute("width", QString::number(window.width));
-    xml.writeAttribute("height", QString::number(window.height));
+    const MessageEntry::Dialog &dialog = entry.dialog();
+    xml.writeEmptyElement("dialog");
+    xml.writeAttribute("x", QString::number(dialog.x));
+    xml.writeAttribute("y", QString::number(dialog.y));
+    xml.writeAttribute("width", QString::number(dialog.width));
+    xml.writeAttribute("height", QString::number(dialog.height));
 
     if (!entry.image().isEmpty()) {
         const MessageEntry::Image &image = entry.image();
