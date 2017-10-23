@@ -102,9 +102,6 @@ bool MessageEntry::isEmpty() const
     if (m_type || m_subtype || m_urgent) {
         return false;
     }
-    if (m_window.x || m_window.y || m_window.width || m_window.height) {
-        return false;
-    }
     if (!m_image1.isEmpty() || !m_image2.isEmpty()) {
         return false;
     }
@@ -113,15 +110,10 @@ bool MessageEntry::isEmpty() const
 
 bool MessageEntry::Image::isEmpty() const
 {
-    return !graphic && !x && !y;
+    return graphic == 0;
 }
 
 bool MessageEntry::String::isEmpty() const
 {
     return offset == 0 && text.isEmpty();
-}
-
-bool MessageEntry::StringWithPosition::isEmpty() const
-{
-    return offset == 0 && text.isEmpty() && !x && !y;
 }

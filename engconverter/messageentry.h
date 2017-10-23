@@ -60,8 +60,6 @@ public:
     public:
         int x;
         int y;
-
-        bool isEmpty() const;
     };
 
 public:
