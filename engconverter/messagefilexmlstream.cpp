@@ -71,9 +71,9 @@ void MessageFileXmlStream::writeMessageEntry(MessageEntry &entry, QXmlStreamWrit
     xml.writeAttribute("width", QString::number(window.width));
     xml.writeAttribute("height", QString::number(window.height));
 
-    if (!entry.image1().isEmpty()) {
-        const MessageEntry::Image &image = entry.image1();
-        xml.writeEmptyElement("image1");
+    if (!entry.image().isEmpty()) {
+        const MessageEntry::Image &image = entry.image();
+        xml.writeEmptyElement("image");
         xml.writeAttribute("graphic", QString::number(image.graphic));
         xml.writeAttribute("x", QString::number(image.x));
         xml.writeAttribute("y", QString::number(image.y));

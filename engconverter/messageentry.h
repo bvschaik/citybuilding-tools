@@ -77,7 +77,7 @@ public:
     int subtype() const;
     void setSubtype(int subtype);
 
-    Image &image1();
+    Image &image();
 
     Image &image2();
 
@@ -104,7 +104,7 @@ private:
     int m_id;
     int m_type;
     int m_subtype;
-    Image m_image1;
+    Image m_image;
     Image m_image2;
     Window m_window;
     bool m_urgent;

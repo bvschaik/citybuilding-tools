@@ -133,10 +133,10 @@ void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, QDataStre
     window.width = readShort(stream);
     window.height = readShort(stream);
 
-    MessageEntry::Image &image1 = entry.image1();
-    image1.graphic = readShort(stream);
-    image1.x = readShort(stream);
-    image1.y = readShort(stream);
+    MessageEntry::Image &image = entry.image();
+    image.graphic = readShort(stream);
+    image.x = readShort(stream);
+    image.y = readShort(stream);
 
     MessageEntry::Image &image2 = entry.image2();
     image2.graphic = readShort(stream);
@@ -245,10 +245,10 @@ void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, QDataStream &s
     stream << (qint16) window.width;
     stream << (qint16) window.height;
 
-    MessageEntry::Image &image1 = entry.image1();
-    stream << (qint16) image1.graphic;
-    stream << (qint16) image1.x;
-    stream << (qint16) image1.y;
+    MessageEntry::Image &image = entry.image();
+    stream << (qint16) image.graphic;
+    stream << (qint16) image.x;
+    stream << (qint16) image.y;
 
     MessageEntry::Image &image2 = entry.image2();
     stream << (qint16) image2.graphic;

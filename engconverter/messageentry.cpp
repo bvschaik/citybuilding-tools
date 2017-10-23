@@ -52,9 +52,9 @@ void MessageEntry::setSubtype(int subtype)
     m_subtype = subtype;
 }
 
-MessageEntry::Image &MessageEntry::image1()
+MessageEntry::Image &MessageEntry::image()
 {
-    return m_image1;
+    return m_image;
 }
 
 MessageEntry::Image &MessageEntry::image2()
@@ -102,7 +102,7 @@ bool MessageEntry::isEmpty() const
     if (m_type || m_subtype || m_urgent) {
         return false;
     }
-    if (!m_image1.isEmpty() || !m_image2.isEmpty()) {
+    if (!m_image.isEmpty() || !m_image2.isEmpty()) {
         return false;
     }
     return m_title.isEmpty() && m_subtitle.isEmpty() && m_video.isEmpty() && m_content.isEmpty();
