@@ -99,9 +99,6 @@ MessageEntry::String &MessageEntry::content()
 
 bool MessageEntry::isEmpty() const
 {
-    if (m_type || m_subtype || m_urgent) {
-        return false;
-    }
     if (!m_image.isEmpty() || !m_image2.isEmpty()) {
         return false;
     }
