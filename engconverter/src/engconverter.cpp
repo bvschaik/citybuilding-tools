@@ -49,7 +49,10 @@ EngConverter::EngConverter(): QMainWindow()
     
     QWidget *widget = new QWidget();
     widget->setLayout(gridLayout);
+
     setCentralWidget(widget);
+    setWindowTitle(tr("ENG Converter"));
+    setWindowIcon(QIcon(":/icon.png"));
 }
 
 EngConverter::~EngConverter()
