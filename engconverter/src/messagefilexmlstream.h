@@ -27,6 +27,7 @@
 #include "messagefile.h"
 #include "messageentry.h"
 #include "logger.h"
+#include "xmlstream.h"
 
 #include <QIODevice>
 #include <QXmlStreamWriter>
@@ -34,7 +35,7 @@
 /**
  * Read/write a message (MM) file in XML format
  */
-class MessageFileXmlStream
+class MessageFileXmlStream : public XmlStream
 {
 public:
     /**
@@ -56,10 +57,6 @@ public:
 private:
     bool readFile(MessageFile &file, QXmlStreamReader &xml, Logger &logger);
     bool readMessageEntry(MessageFile &file, QXmlStreamReader &xml, Logger &logger);
-    bool readIntegerAttribute(QXmlStreamReader &xml, const QString &attr, int *value, Logger &logger);
-    bool readNextOpenTag(QXmlStreamReader &xml, Logger &logger);
-    bool readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
-    bool readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
     void writeMessageEntry(MessageEntry &entry, QXmlStreamWriter &xml);
     void writeText(const MessageEntry::StringWithPosition &str, const QString &tag, QXmlStreamWriter &xml);
 };

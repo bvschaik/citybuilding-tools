@@ -21,44 +21,20 @@
  * SOFTWARE.
  */
 
-#ifndef TEXTFILEXMLSTREAM_H
-#define TEXTFILEXMLSTREAM_H
+#ifndef XMLSTREAM_H
+#define XMLSTREAM_H
 
-#include "textfile.h"
-#include "textgroup.h"
-#include "xmlstream.h"
+#include "logger.h"
 
-#include <QIODevice>
-#include <QString>
 #include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
-/**
- * Read/write a text/strings file in XML format
- */
-class TextFileXmlStream : public XmlStream
+class XmlStream
 {
-public:
-    /**
-     * Read data from XML file 'device' into 'file'
-     * \param file File data class to read into
-     * \param device Device to read from
-     * \return True on success, false on failure
-     */
-    bool read(TextFile &file, QIODevice &device, Logger &logger);
-
-    /**
-     * Write 'file' to 'device' in XML format
-     * \param file File data class to write
-     * \param device Device to write to
-     * \return True on success, false on failure
-     */
-    bool write(TextFile &file, QIODevice &device, Logger &logger);
-
-private:
-    bool readFile(TextFile &file, QXmlStreamReader &xml, Logger &logger);
-    bool readGroup(TextFile &file, QXmlStreamReader &xml, Logger &logger);
-    void writeGroup(const TextGroup &group, QXmlStreamWriter &xml);
+protected:
+    bool readIntegerAttribute(QXmlStreamReader &xml, const QString &attr, int *value, Logger &logger);
+    bool readNextOpenTag(QXmlStreamReader &xml, Logger &logger);
+    bool readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
+    bool readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
 };
 
-#endif // TEXTFILEXMLSTREAM_H
+#endif // XMLSTREAM_H

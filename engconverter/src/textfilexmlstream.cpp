@@ -61,86 +61,23 @@ bool TextFileXmlStream::readFile(TextFile &file, QXmlStreamReader &xml, Logger &
     return readCloseTag(xml, "strings", logger);
 }
 
-bool TextFileXmlStream::readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger)
-{
-    if (xml.isStartElement() && xml.name() == tag) {
-        return true;
-    }
-    while (!xml.atEnd()) {
-        QXmlStreamReader::TokenType token = xml.readNext();
-        switch (token) {
-            case QXmlStreamReader::StartDocument:
-            case QXmlStreamReader::Comment:
-            case QXmlStreamReader::DTD:
-            case QXmlStreamReader::Characters:
-            case QXmlStreamReader::EntityReference:
-            case QXmlStreamReader::ProcessingInstruction:
-            case QXmlStreamReader::NoToken:
-                continue;
-                
-            case QXmlStreamReader::Invalid:
-                logger.error(QString("Invalid XML: %s").arg(xml.errorString()));
-                return false;
-            case QXmlStreamReader::EndDocument:
-            case QXmlStreamReader::EndElement:
-                return false;
-                
-            case QXmlStreamReader::StartElement:
-                if (xml.name() == tag) {
-                    return true;
-                } else {
-                    logger.error(QString("Invalid XML: expected tag <%1>, got <%2>")
-                            .arg(tag, xml.name().toString()));
-                    return false;
-                }
-        }
-    }
-    logger.error("Invalid XML: unexpected end of file");
-    return false;
-}
-
-bool TextFileXmlStream::readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger)
-{
-    if (xml.isEndElement() && xml.name() == tag) {
-        return true;
-    }
-    while (!xml.atEnd()) {
-        QXmlStreamReader::TokenType token = xml.readNext();
-        if (token == QXmlStreamReader::EndElement && xml.name() == tag) {
-            return true;
-        }
-    }
-    logger.error(QString("Invalid XML: end element </%1> not found").arg(tag));
-    return false;
-}
-
 bool TextFileXmlStream::readGroup(TextFile &file, QXmlStreamReader &xml, Logger &logger)
 {
-    if (!xml.attributes().hasAttribute("id")) {
-        logger.error("Group does not have an ID attribute");
-        return false;
-    }
-    bool ok;
-    QString idString = xml.attributes().value("id").toString();
-    int id = idString.toInt(&ok);
-    if (!ok) {
-        logger.error(QString("Group ID is not an integer: %1").arg(idString));
+    int id;
+    if (!readIntegerAttribute(xml, "id", &id, logger)) {
         return false;
     }
     TextGroup group(id);
-    int index = 0;
     while (readOpenTag(xml, "string", logger)) {
         QString textIdString = xml.attributes().value("id").toString();
-        int textId = textIdString.toInt(&ok);
-        if (!ok) {
-            logger.error(QString("String ID is not an integer: %1").arg(textIdString));
+        int textId;
+        if (!readIntegerAttribute(xml, "id", &textId, logger)) {
             return false;
         }
         if (textId != group.size()) {
             logger.error(QString("Strings in group %1 are not ordered properly").arg(id));
             return false;
         }
-        index++;
         group.add(xml.readElementText());
         readCloseTag(xml, "string", logger);
     }

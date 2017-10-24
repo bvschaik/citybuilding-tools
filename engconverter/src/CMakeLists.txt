@@ -15,6 +15,7 @@ set(engconverter_SRCS
     messagefile.cpp
     messagefileengstream.cpp
     messagefilexmlstream.cpp
+    xmlstream.cpp
 )
 
 add_executable(engconverter ${engconverter_SRCS})
