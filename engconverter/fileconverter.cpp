@@ -58,8 +58,8 @@ bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, Logger 
         success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        success = false;
-        logger.error("Message (MM) files are not supported yet");
+        MessageFile file;
+        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
     } else {
         success = false;
         logger.error("Unknown input file type");

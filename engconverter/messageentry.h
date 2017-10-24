@@ -33,6 +33,7 @@ public:
     class Image
     {
     public:
+        Image();
         int graphic;
         int x;
         int y;
@@ -42,6 +43,7 @@ public:
     class Dialog
     {
     public:
+        Dialog();
         int x;
         int y;
         int width;
@@ -50,6 +52,7 @@ public:
     class String
     {
     public:
+        String();
         int offset;
         QString text;
 
@@ -58,6 +61,7 @@ public:
     class StringWithPosition : public String
     {
     public:
+        StringWithPosition();
         int x;
         int y;
     };

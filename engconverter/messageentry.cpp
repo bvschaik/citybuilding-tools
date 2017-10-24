@@ -105,12 +105,28 @@ bool MessageEntry::isEmpty() const
     return m_title.isEmpty() && m_subtitle.isEmpty() && m_video.isEmpty() && m_content.isEmpty();
 }
 
+MessageEntry::Dialog::Dialog()
+: x(0), y(0), width(0), height(0)
+{}
+
+MessageEntry::Image::Image()
+: graphic(0), x(0), y(0)
+{}
+
 bool MessageEntry::Image::isEmpty() const
 {
     return graphic == 0;
 }
 
+MessageEntry::String::String()
+: offset(0)
+{}
+
 bool MessageEntry::String::isEmpty() const
 {
     return offset == 0 && text.isEmpty();
 }
+
+MessageEntry::StringWithPosition::StringWithPosition()
+: x(0), y(0)
+{}

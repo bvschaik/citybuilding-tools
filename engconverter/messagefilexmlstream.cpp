@@ -104,7 +104,7 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
             MessageEntry::StringWithPosition &str = tag == "title" ? entry.title()
                 : (tag == "subtitle" ? entry.subtitle() : entry.video());
             if (!readIntegerAttribute(xml, "x", &str.x, logger) ||
-                !readIntegerAttribute(xml, "x", &str.x, logger)) {
+                !readIntegerAttribute(xml, "y", &str.y, logger)) {
                 return false;
             }
             str.text = xml.readElementText();
