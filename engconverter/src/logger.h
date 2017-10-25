@@ -56,8 +56,17 @@ public:
      */
     const QStringList messages() const;
 
+    /**
+     * Set context data which is logged before every error/warning
+     * \param context Context info
+     */
+    void setContext(const QString &context);
+
 private:
+    void addMessage(const QString &message);
+    
     QStringList m_messages;
+    QString m_context;
 };
 
 #endif // LOGGER_H

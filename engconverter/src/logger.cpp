@@ -25,20 +25,34 @@
 
 void Logger::error(const QString &message)
 {
-    m_messages.append(QString("ERROR: %1").arg(message));
+    addMessage(QString("ERROR: %1").arg(message));
 }
 
 void Logger::warn(const QString &message)
 {
-    m_messages.append(QString("Warning: %1").arg(message));
+    addMessage(QString("Warning: %1").arg(message));
 }
 
 void Logger::info(const QString &message)
 {
-    m_messages.append(message);
+    addMessage(message);
+}
+
+void Logger::addMessage(const QString &message)
+{
+    if (m_context.isEmpty()) {
+        m_messages.append(message);
+    } else {
+        m_messages.append(QString("%1: %2").arg(m_context, message));
+    }
 }
 
 const QStringList Logger::messages() const
 {
     return m_messages;
+}
+
+void Logger::setContext(const QString &context)
+{
+    m_context = context;
 }

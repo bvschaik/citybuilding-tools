@@ -94,6 +94,9 @@ bool XmlStream::readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &
         QXmlStreamReader::TokenType token = xml.readNext();
         if (token == QXmlStreamReader::EndElement && xml.name() == tag) {
             return true;
+        } else if (token == QXmlStreamReader::Invalid) {
+            logger.error(QString("Invalid XML: %1").arg(xml.errorString()));
+            return false;
         }
     }
     logger.error(QString("Invalid XML: end element </%1> not found").arg(tag));

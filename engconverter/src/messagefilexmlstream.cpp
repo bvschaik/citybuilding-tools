@@ -57,6 +57,7 @@ bool MessageFileXmlStream::readFile(MessageFile &file, QXmlStreamReader &xml, Lo
             return false;
         }
     }
+    logger.setContext("");
     return readCloseTag(xml, "messages", logger);
 }
 
@@ -68,6 +69,8 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
         !readIntegerAttribute(xml, "subtype", &subtype, logger)) {
         return false;
     }
+    logger.setContext(QString("Message %1").arg(id));
+
     MessageEntry entry(id);
     entry.setType(type);
     entry.setSubtype(subtype);
