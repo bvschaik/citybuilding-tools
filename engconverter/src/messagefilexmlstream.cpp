@@ -109,7 +109,7 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
             }
             str.text = xml.readElementText();
         } else if (tag == "content") {
-            entry.content().text = xml.readElementText();
+            entry.content().text = xml.readElementText().replace('~', 0xe);
         } else {
             logger.error(QString("Unexpected tag %1 in message %2").arg(tag).arg(id));
         }
@@ -181,7 +181,7 @@ void MessageFileXmlStream::writeMessageEntry(MessageEntry &entry, QXmlStreamWrit
 
     if (!entry.content().text.isEmpty()) {
         xml.writeStartElement("content");
-        xml.writeCharacters(entry.content().text);
+        xml.writeCharacters(entry.content().text.replace(0xe, '~'));
         xml.writeEndElement();
     }
 
