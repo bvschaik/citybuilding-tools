@@ -87,14 +87,7 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
     }
     readCloseTag(xml, "dialog", logger);
 
-    if (!readNextOpenTag(xml, logger)) {
-        logger.error(QString("Unexpected end of message %1, "
-            "expected at least one of the following tags: "
-            "image, title, subtitle, video, content").arg(id));
-        return false;
-    }
-
-    do {
+    while (readNextOpenTag(xml, logger)) {
         const QString &tag = xml.name().toString();
         if (tag == "image" || tag == "image2") {
             MessageEntry::Image &image = tag == "image" ? entry.image() : entry.image2();
@@ -119,7 +112,7 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
         if (!readCloseTag(xml, tag, logger)) {
             return false;
         }
-    } while (readNextOpenTag(xml, logger));
+    };
 
     file.m_entries.append(entry);
     return true;

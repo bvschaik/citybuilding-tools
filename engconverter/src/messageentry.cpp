@@ -102,6 +102,9 @@ bool MessageEntry::isEmpty() const
     if (!m_image.isEmpty() || !m_image2.isEmpty()) {
         return false;
     }
+    if (m_dialog.x || m_dialog.y || m_dialog.width || m_dialog.height) {
+        return false;
+    }
     return m_title.isEmpty() && m_subtitle.isEmpty() && m_video.isEmpty() && m_content.isEmpty();
 }
 
