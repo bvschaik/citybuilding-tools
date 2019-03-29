@@ -26,6 +26,10 @@
 #include "messagefileengstream.h"
 #include "messagefilexmlstream.h"
 
+MessageFile::MessageFile(const QString &encoding)
+: m_encoding(encoding)
+{}
+
 int MessageFile::maxEntryId() const
 {
     if (m_entries.isEmpty()) {

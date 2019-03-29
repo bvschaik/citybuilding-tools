@@ -50,7 +50,7 @@ public:
     bool write(MessageFile &file, QIODevice &device, Logger &logger);
 
 private:
-    void prepareDataStream(QDataStream &stream);
+    void prepareDataStream(QDataStream &stream, const QString &encoding);
     bool readFile(MessageFile &file, QDataStream &stream, Logger &logger);
     void readMessageEntry(int id, MessageFile &file, QDataStream &stream);
     bool readStringContent(MessageEntry::String &target, const char *rawData, int textSize, int id, const QString &field, Logger &logger);

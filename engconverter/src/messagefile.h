@@ -38,6 +38,8 @@ class MessageFileXmlStream;
 class MessageFile
 {
 public:
+	MessageFile(const QString &encoding);
+
     /**
      * Last entry ID in use
      */
@@ -82,6 +84,7 @@ public:
 
 private:
     QString m_name;
+    QString m_encoding;
     int m_totalEntries;
     
     QList<MessageEntry> m_entries;

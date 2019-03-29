@@ -39,7 +39,7 @@ bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, const Q
         success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        MessageFile file;
+        MessageFile file(encoding);
         success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
     } else {
         success = false;
@@ -58,7 +58,7 @@ bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, const Q
         success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        MessageFile file;
+        MessageFile file(encoding);
         success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
     } else {
         success = false;
