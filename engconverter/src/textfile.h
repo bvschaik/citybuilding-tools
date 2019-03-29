@@ -41,7 +41,7 @@ class TextFileXmlStream;
 class TextFile
 {
 public:
-    TextFile();
+    TextFile(const QString &encoding);
     
     /**
      * Name of the file
@@ -103,6 +103,7 @@ public:
 private:
     bool m_indexWithCounts;
     QString m_name;
+    QString m_encoding;
     QList<TextGroup> m_groups;
 
     friend class TextFileEngStream;

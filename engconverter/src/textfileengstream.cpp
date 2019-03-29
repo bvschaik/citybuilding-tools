@@ -45,7 +45,7 @@ bool TextFileEngStream::read(TextFile &file, QIODevice &device, Logger &logger)
     }
     
     QDataStream stream(&device);
-    prepareDataStream(stream);
+    prepareDataStream(stream, file.m_encoding);
 
     bool result = readFile(file, stream, logger);
     
@@ -129,7 +129,7 @@ bool TextFileEngStream::write(TextFile &file, QIODevice &device, Logger &logger)
     }
 
     QDataStream stream(&device);
-    prepareDataStream(stream);
+    prepareDataStream(stream, file.m_encoding);
     
     qSort(file.m_groups.begin(), file.m_groups.end(), compareTextGroup);
 
@@ -181,8 +181,8 @@ void TextFileEngStream::writeEmptyEntries(QDataStream &eng, int lastWrittenIndex
     }
 }
 
-void TextFileEngStream::prepareDataStream(QDataStream &stream)
+void TextFileEngStream::prepareDataStream(QDataStream &stream, const QString &encoding)
 {
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("Windows-1252"));
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName(encoding.toAscii()));
     stream.setByteOrder(QDataStream::LittleEndian);
 }

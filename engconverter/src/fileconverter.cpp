@@ -29,13 +29,13 @@
 #include <QDataStream>
 #include <QXmlStreamReader>
 
-bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, Logger &logger)
+bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, const QString &encoding, Logger &logger)
 {
     FileType type = determineEngFileType(inputFile, logger);
     bool success;
     if (type == TYPE_TEXT) {
         logger.info("Determined file type: text");
-        TextFile file;
+        TextFile file(encoding);
         success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
@@ -48,13 +48,13 @@ bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, Logger 
     return success;
 }
 
-bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, Logger &logger)
+bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, const QString &encoding, Logger &logger)
 {
     FileType type = determineXmlFileType(inputFile, logger);
     bool success;
     if (type == TYPE_TEXT) {
         logger.info("Determined file type: text");
-        TextFile file;
+        TextFile file(encoding);
         success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");

@@ -52,7 +52,7 @@ public:
     bool write(TextFile &file, QIODevice &device, Logger &logger);
 
 private:
-    void prepareDataStream(QDataStream &stream);
+    void prepareDataStream(QDataStream &stream, const QString &encoding);
     bool readFile(TextFile &file, QDataStream &stream, Logger &logger);
     void writeEmptyEntries(QDataStream &stream, int lastWrittenIndex, int nextIndex, int offset);
 };

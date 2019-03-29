@@ -31,8 +31,8 @@
 #include <qtextcodec.h>
 
 
-TextFile::TextFile()
-: m_indexWithCounts(false)
+TextFile::TextFile(const QString &encoding)
+: m_indexWithCounts(false), m_encoding(encoding)
 {}
 
 const QString &TextFile::name() const

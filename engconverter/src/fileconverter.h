@@ -32,9 +32,9 @@ class FileConverter
 {
 public:
     
-    bool convertEngToXml(QFile &inputFile, QFile &outputFile, Logger &logger);
+    bool convertEngToXml(QFile &inputFile, QFile &outputFile, const QString &encoding, Logger &logger);
     
-    bool convertXmlToEng(QFile &inputFile, QFile &outputFile, Logger &logger);
+    bool convertXmlToEng(QFile &inputFile, QFile &outputFile, const QString &encoding, Logger &logger);
 
 private:
     enum FileType {
