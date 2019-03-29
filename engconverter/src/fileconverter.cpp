@@ -35,12 +35,12 @@ bool FileConverter::convertEngToXml(QFile &inputFile, QFile &outputFile, const Q
     bool success;
     if (type == TYPE_TEXT) {
         logger.info("Determined file type: text");
-        TextFile file(encoding);
-        success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
+        TextFile file;
+        success = file.readFromEng(inputFile, encoding, logger) && file.writeToXml(outputFile, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        MessageFile file(encoding);
-        success = file.readFromEng(inputFile, logger) && file.writeToXml(outputFile, logger);
+        MessageFile file;
+        success = file.readFromEng(inputFile, encoding, logger) && file.writeToXml(outputFile, logger);
     } else {
         success = false;
         logger.error("Unknown input file type");
@@ -54,12 +54,12 @@ bool FileConverter::convertXmlToEng(QFile &inputFile, QFile &outputFile, const Q
     bool success;
     if (type == TYPE_TEXT) {
         logger.info("Determined file type: text");
-        TextFile file(encoding);
-        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
+        TextFile file;
+        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, encoding, logger);
     } else if (type == TYPE_MESSAGE) {
         logger.info("Determined file type: message");
-        MessageFile file(encoding);
-        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, logger);
+        MessageFile file;
+        success = file.readFromXml(inputFile, logger) && file.writeToEng(outputFile, encoding, logger);
     } else {
         success = false;
         logger.error("Unknown input file type");

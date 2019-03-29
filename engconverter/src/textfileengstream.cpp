@@ -37,7 +37,7 @@ enum {
     MAX_DATA_SIZE = 1000000
 };
 
-bool TextFileEngStream::read(TextFile &file, QIODevice &device, Logger &logger)
+bool TextFileEngStream::read(TextFile &file, QIODevice &device, const QString &encoding, Logger &logger)
 {
     if (!device.open(QIODevice::ReadOnly)) {
         logger.error(QString("Unable to open ENG file for reading: %1").arg(device.errorString()));
@@ -45,7 +45,7 @@ bool TextFileEngStream::read(TextFile &file, QIODevice &device, Logger &logger)
     }
     
     QDataStream stream(&device);
-    prepareDataStream(stream, file.m_encoding);
+    prepareDataStream(stream, encoding);
 
     bool result = readFile(file, stream, logger);
     
@@ -121,7 +121,7 @@ static bool compareTextGroup(const TextGroup &g1, const TextGroup &g2)
     return g1.id() < g2.id();
 }
 
-bool TextFileEngStream::write(TextFile &file, QIODevice &device, Logger &logger)
+bool TextFileEngStream::write(TextFile &file, QIODevice &device, const QString &encoding, Logger &logger)
 {
     if (!device.open(QIODevice::WriteOnly)) {
         logger.error(QString("Unable to open ENG file for writing: %1").arg(device.errorString()));
@@ -129,7 +129,7 @@ bool TextFileEngStream::write(TextFile &file, QIODevice &device, Logger &logger)
     }
 
     QDataStream stream(&device);
-    prepareDataStream(stream, file.m_encoding);
+    prepareDataStream(stream, encoding);
     
     qSort(file.m_groups.begin(), file.m_groups.end(), compareTextGroup);
 

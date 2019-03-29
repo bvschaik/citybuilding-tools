@@ -26,10 +26,6 @@
 #include "messagefileengstream.h"
 #include "messagefilexmlstream.h"
 
-MessageFile::MessageFile(const QString &encoding)
-: m_encoding(encoding)
-{}
-
 int MessageFile::maxEntryId() const
 {
     if (m_entries.isEmpty()) {
@@ -43,14 +39,14 @@ int MessageFile::totalEntries() const
     return m_totalEntries;
 }
 
-bool MessageFile::readFromEng(QIODevice &device, Logger &logger)
+bool MessageFile::readFromEng(QIODevice &device, const QString &encoding, Logger &logger)
 {
-    return MessageFileEngStream().read(*this, device, logger);
+    return MessageFileEngStream().read(*this, device, encoding, logger);
 }
 
-bool MessageFile::writeToEng(QIODevice &device, Logger &logger)
+bool MessageFile::writeToEng(QIODevice &device, const QString &encoding, Logger &logger)
 {
-    return MessageFileEngStream().write(*this, device, logger);
+    return MessageFileEngStream().write(*this, device, encoding, logger);
 }
 
 bool MessageFile::readFromXml(QIODevice &device, Logger &logger)

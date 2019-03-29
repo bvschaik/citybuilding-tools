@@ -38,8 +38,6 @@ class MessageFileXmlStream;
 class MessageFile
 {
 public:
-	MessageFile(const QString &encoding);
-
     /**
      * Last entry ID in use
      */
@@ -53,10 +51,11 @@ public:
     /**
      * Read text from device in ENG format
      * \param device Device to read from
+     * \param encoding Encoding to use
      * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool readFromEng(QIODevice &device, Logger &logger);
+    bool readFromEng(QIODevice &device, const QString &encoding, Logger &logger);
 
     /**
      * Read text from device in XML format
@@ -69,10 +68,11 @@ public:
     /**
      * Write text to device in ENG format
      * \param device Device to write to
+     * \param encoding Encoding to use
      * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool writeToEng(QIODevice &device, Logger &logger);
+    bool writeToEng(QIODevice &device, const QString &encoding, Logger &logger);
 
     /**
      * Write text to device in XML format
@@ -84,7 +84,6 @@ public:
 
 private:
     QString m_name;
-    QString m_encoding;
     int m_totalEntries;
     
     QList<MessageEntry> m_entries;

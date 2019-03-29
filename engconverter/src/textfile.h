@@ -41,7 +41,7 @@ class TextFileXmlStream;
 class TextFile
 {
 public:
-    TextFile(const QString &encoding);
+    TextFile();
     
     /**
      * Name of the file
@@ -71,10 +71,11 @@ public:
     /**
      * Read text from device in ENG format
      * \param device Device to read from
+     * \param encoding Encoding to use
      * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool readFromEng(QIODevice &device, Logger &logger);
+    bool readFromEng(QIODevice &device, const QString &encoding, Logger &logger);
 
     /**
      * Read text from device in XML format
@@ -87,10 +88,11 @@ public:
     /**
      * Write text to device in ENG format
      * \param device Device to write to
+     * \param encoding Encoding to use
      * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool writeToEng(QIODevice &device, Logger &logger);
+    bool writeToEng(QIODevice &device, const QString &encoding, Logger &logger);
 
     /**
      * Write text to device in XML format
@@ -103,7 +105,6 @@ public:
 private:
     bool m_indexWithCounts;
     QString m_name;
-    QString m_encoding;
     QList<TextGroup> m_groups;
 
     friend class TextFileEngStream;

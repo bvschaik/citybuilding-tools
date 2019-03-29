@@ -39,17 +39,21 @@ public:
      * Read data from ENG file 'device' into 'file'
      * \param file File data class to read into
      * \param device Device to read from
+     * \param encoding Encoding to use
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool read(TextFile &file, QIODevice &device, Logger &logger);
+    bool read(TextFile &file, QIODevice &device, const QString &encoding, Logger &logger);
 
     /**
      * Write 'file' to 'device' in ENG format
      * \param file File data class to write
      * \param device Device to write to
+     * \param encoding Encoding to use
+     * \param logger Logger for messages
      * \return True on success, false on failure
      */
-    bool write(TextFile &file, QIODevice &device, Logger &logger);
+    bool write(TextFile &file, QIODevice &device, const QString &encoding, Logger &logger);
 
 private:
     void prepareDataStream(QDataStream &stream, const QString &encoding);

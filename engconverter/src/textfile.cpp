@@ -31,8 +31,8 @@
 #include <qtextcodec.h>
 
 
-TextFile::TextFile(const QString &encoding)
-: m_indexWithCounts(false), m_encoding(encoding)
+TextFile::TextFile()
+: m_indexWithCounts(false)
 {}
 
 const QString &TextFile::name() const
@@ -73,14 +73,14 @@ int TextFile::totalWords() const
     return total;
 }
 
-bool TextFile::readFromEng(QIODevice &device, Logger &logger)
+bool TextFile::readFromEng(QIODevice &device, const QString &encoding, Logger &logger)
 {
-    return TextFileEngStream().read(*this, device, logger);
+    return TextFileEngStream().read(*this, device, encoding, logger);
 }
 
-bool TextFile::writeToEng(QIODevice &device, Logger &logger)
+bool TextFile::writeToEng(QIODevice &device, const QString &encoding, Logger &logger)
 {
-    return TextFileEngStream().write(*this, device, logger);
+    return TextFileEngStream().write(*this, device, encoding, logger);
 }
 
 bool TextFile::readFromXml(QIODevice &device, Logger &logger)

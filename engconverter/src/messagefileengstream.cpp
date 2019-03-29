@@ -33,7 +33,7 @@ enum {
     MAX_DATA_SIZE = 1000000
 };
 
-bool MessageFileEngStream::read(MessageFile &file, QIODevice &device, Logger &logger)
+bool MessageFileEngStream::read(MessageFile &file, QIODevice &device, const QString &encoding, Logger &logger)
 {
     if (!device.open(QIODevice::ReadOnly)) {
         logger.error(QString("Unable to open ENG file for reading: %1").arg(device.errorString()));
@@ -41,7 +41,7 @@ bool MessageFileEngStream::read(MessageFile &file, QIODevice &device, Logger &lo
     }
     
     QDataStream stream(&device);
-    prepareDataStream(stream, file.m_encoding);
+    prepareDataStream(stream, encoding);
 
     bool result = readFile(file, stream, logger);
     
@@ -177,7 +177,7 @@ static bool compareMessageEntry(const MessageEntry &e1, const MessageEntry &e2)
     return e1.id() < e2.id();
 }
 
-bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, Logger &logger)
+bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, const QString &encoding, Logger &logger)
 {
     if (!device.open(QIODevice::WriteOnly)) {
         logger.error(QString("Unable to open ENG file for writing: %1").arg(device.errorString()));
@@ -185,7 +185,7 @@ bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, Logger &l
     }
 
     QDataStream stream(&device);
-    prepareDataStream(stream, file.m_encoding);
+    prepareDataStream(stream, encoding);
     
     qSort(file.m_entries.begin(), file.m_entries.end(), compareMessageEntry);
 
