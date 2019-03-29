@@ -24,6 +24,7 @@
 #ifndef CONVERTERTAB_H
 #define CONVERTERTAB_H
 
+#include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
 
@@ -55,6 +56,7 @@ private:
     
     QLineEdit *inputFileEdit;
     QLineEdit *outputFileEdit;
+    QComboBox *encodingComboBox;
     
     QTextEdit *convertOutputEdit;
 };

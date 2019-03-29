@@ -39,6 +39,12 @@ ConverterTab::ConverterTab(ConverterTab::FileType from, ConverterTab::FileType t
     outputFileEdit = new QLineEdit();
     QPushButton *outputFileBrowse = new QPushButton(tr("Browse..."));
 
+    QLabel *encodingLabel = new QLabel(tr("Encoding:"));
+    encodingComboBox = new QComboBox();
+    encodingComboBox->addItem("Windows-1252 - Default", QVariant("Windows-1252"));
+    encodingComboBox->addItem("Windows-1250 - Polish", QVariant("Windows-1250"));
+    encodingComboBox->addItem("Windows-1251 - Russian", QVariant("Windows-1251"));
+
     QPushButton *convertButton = new QPushButton(tr("Convert"));
 
     QLabel *convertOutputLabel = new QLabel(tr("Conversion output:"));
@@ -53,11 +59,14 @@ ConverterTab::ConverterTab(ConverterTab::FileType from, ConverterTab::FileType t
     mainLayout->addWidget(outputFileLabel, 1, 0);
     mainLayout->addWidget(outputFileEdit, 1, 1);
     mainLayout->addWidget(outputFileBrowse, 1, 2);
-    
-    mainLayout->addWidget(convertButton, 2, 1, 1, 2);
 
-    mainLayout->addWidget(convertOutputLabel, 3, 0, Qt::AlignTop);
-    mainLayout->addWidget(convertOutputEdit, 3, 1, 1, 2);
+    mainLayout->addWidget(encodingLabel, 2, 0);
+    mainLayout->addWidget(encodingComboBox, 2, 1, 1, 2);
+
+    mainLayout->addWidget(convertButton, 3, 1, 1, 2);
+
+    mainLayout->addWidget(convertOutputLabel, 4, 0, Qt::AlignTop);
+    mainLayout->addWidget(convertOutputEdit, 4, 1, 1, 2);
     
     setLayout(mainLayout);
 
@@ -100,17 +109,19 @@ void ConverterTab::convertFile()
 {
     QFile inputFile(inputFileEdit->text());
     QFile outputFile(outputFileEdit->text());
+    QString encoding = encodingComboBox->itemData(encodingComboBox->currentIndex()).toString();
     FileConverter converter;
     Logger logger;
+    logger.info(QString("Using encoding: %1").arg(encoding));
     bool success;
     if (fromType == ENG) {
-        success = converter.convertEngToXml(inputFile, outputFile, logger);
+        success = converter.convertEngToXml(inputFile, outputFile, encoding, logger);
     } else {
-        success = converter.convertXmlToEng(inputFile, outputFile, logger);
+        success = converter.convertXmlToEng(inputFile, outputFile, encoding, logger);
     }
     QString firstLine = success ? tr("Conversion OK") : tr("*** Conversion FAILED ***");
     
-    QString totalLog = firstLine + "\n" + logger.messages().join("\n");
+    QString totalLog = firstLine + "\n\n" + logger.messages().join("\n");
     convertOutputEdit->setText(totalLog);
 }
 
