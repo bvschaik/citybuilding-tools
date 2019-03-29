@@ -74,7 +74,7 @@ void ConverterTab::inputBrowse()
 {
     QString inputFileName = QFileDialog::getOpenFileName(this,
         tr("Choose the %1 file you wish to convert").arg(typeName(fromType)),
-        inputFileEdit->text(), tr("%1 File (*%2)").arg(typeName(fromType), typeExt(fromType)));
+        inputFileEdit->text(), tr("%1 File (%2)").arg(typeName(fromType), typeWildcard(fromType)));
     
     if (!inputFileName.isEmpty()) {
         inputFileEdit->setText(inputFileName);
@@ -89,7 +89,7 @@ void ConverterTab::outputBrowse()
         suggestion = filename.replace(filename.length() - 4, 4, typeExt(toType));
     }
     QString outputFileName = QFileDialog::getSaveFileName(this, tr("Output %1 file").arg(typeName(toType)),
-        suggestion, tr("%1 File (*%2)").arg(typeName(toType), typeExt(toType)));
+        suggestion, tr("%1 File (%2)").arg(typeName(toType), typeWildcard(toType)));
     
     if (!outputFileName.isEmpty()) {
         outputFileEdit->setText(outputFileName);
@@ -125,5 +125,12 @@ const QString &ConverterTab::typeExt(ConverterTab::FileType type)
 {
     static const QString eng(".eng");
     static const QString xml(".xml");
+    return type == ENG ? eng : xml;
+}
+
+const QString &ConverterTab::typeWildcard(ConverterTab::FileType type)
+{
+    static const QString eng("*.eng;*.rus");
+    static const QString xml("*.xml");
     return type == ENG ? eng : xml;
 }

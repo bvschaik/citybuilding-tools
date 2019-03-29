@@ -48,6 +48,7 @@ private slots:
 private:
     const QString &typeName(FileType type);
     const QString &typeExt(FileType type);
+    const QString &typeWildcard(FileType type);
     
     FileType fromType;
     FileType toType;
