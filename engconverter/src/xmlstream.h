@@ -32,6 +32,7 @@ class XmlStream
 {
 protected:
     bool readIntegerAttribute(QXmlStreamReader &xml, const QString &attr, int *value, Logger &logger);
+    bool readBooleanAttribute(QXmlStreamReader &xml, const QString &attr, bool *value, Logger &logger);
     bool readNextOpenTag(QXmlStreamReader &xml, Logger &logger);
     bool readOpenTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);
     bool readCloseTag(QXmlStreamReader &xml, const QString &tag, Logger &logger);

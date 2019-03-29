@@ -71,9 +71,12 @@ bool MessageFileXmlStream::readMessageEntry(MessageFile &file, QXmlStreamReader 
     }
     logger.setContext(QString("Message %1").arg(id));
 
+    bool urgent;
+    readBooleanAttribute(xml, "urgent", &urgent, logger);
     MessageEntry entry(id);
     entry.setType(type);
     entry.setSubtype(subtype);
+    entry.setUrgent(urgent);
 
     if (!readOpenTag(xml, "dialog", logger)) {
         return false;
@@ -150,6 +153,9 @@ void MessageFileXmlStream::writeMessageEntry(MessageEntry &entry, QXmlStreamWrit
     xml.writeAttribute("id", QString::number(entry.id()));
     xml.writeAttribute("type", QString::number(entry.type()));
     xml.writeAttribute("subtype", QString::number(entry.subtype()));
+    if (entry.urgent()) {
+        xml.writeAttribute("urgent", "true");
+    }
 
     const MessageEntry::Dialog &dialog = entry.dialog();
     xml.writeEmptyElement("dialog");

@@ -28,6 +28,7 @@ bool XmlStream::readIntegerAttribute(QXmlStreamReader &xml, const QString &attr,
     if (!xml.attributes().hasAttribute(attr)) {
         logger.error(QString("Required attribute %1 not found on tag <%2>")
             .arg(attr, xml.name().toString()));
+        return false;
     }
     const QString valueStr = xml.attributes().value(attr).toString();
     bool ok;
@@ -38,6 +39,26 @@ bool XmlStream::readIntegerAttribute(QXmlStreamReader &xml, const QString &attr,
         return false;
     }
     return true;
+}
+
+bool XmlStream::readBooleanAttribute(QXmlStreamReader &xml, const QString &attr, bool *value, Logger &logger)
+{
+    if (!xml.attributes().hasAttribute(attr)) {
+        *value = false;
+        return true;
+    }
+    const QString valueStr = xml.attributes().value(attr).toString();
+    if (valueStr == "true") {
+        *value = true;
+        return true;
+    } else if (valueStr == "false") {
+        *value = false;
+        return true;
+    } else {
+        logger.error(QString("Attribute %1 (%2) on tag <%3> must be a boolean")
+            .arg(attr, valueStr, xml.name().toString()));
+        return false;
+    }
 }
 
 bool XmlStream::readNextOpenTag(QXmlStreamReader &xml, Logger &logger)
