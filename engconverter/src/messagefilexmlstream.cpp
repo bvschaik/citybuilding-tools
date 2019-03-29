@@ -129,6 +129,7 @@ bool MessageFileXmlStream::write(MessageFile &file, QIODevice &device, Logger &l
 
     xml.writeStartDocument();
     xml.writeStartElement("messages");
+    xml.writeAttribute("name", file.m_name);
     xml.writeAttribute("entries", QString::number(file.totalEntries()));
 
     QList<MessageEntry>::iterator it;
