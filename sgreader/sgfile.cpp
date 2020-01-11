@@ -212,7 +212,7 @@ void SgFile::loadImages(QDataStream *stream, bool includeAlpha) {
 }
 
 bool SgFile::checkVersion() {
-	if (header->version == 0xd3) {
+	if (header->version == 0xcf || header->version == 0xd3) {
 		// SG2 file: filesize = 74480 or 522680 (depending on whether it's
 		// a "normal" sg2 or an enemy sg2
 		if (header->sg_filesize == 74480 || header->sg_filesize == 522680) {
@@ -231,7 +231,9 @@ bool SgFile::checkVersion() {
 }
 
 int SgFile::maxBitmapRecords() const {
-	if (header->version == 0xd3) {
+	if (header->version == 0xcf) {
+		return 50; // C3 demo SG2
+	} else if (header->version == 0xd3) {
 		return 100; // SG2
 	} else {
 		return 200; // SG3

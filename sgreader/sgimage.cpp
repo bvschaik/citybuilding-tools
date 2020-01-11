@@ -296,6 +296,10 @@ void SgImage::writeIsometricBase(QImage *img, const quint8 *buffer) {
 			size = height / ISOMETRIC_LARGE_TILE_HEIGHT;
 		}
 	}
+	if (size == 0) {
+		setError(QString("Unknown isometric tile size: height %0").arg(height));
+		return;
+	}
 	
 	/* Determine whether we should use the regular or large (emperor) tiles */
 	if (ISOMETRIC_TILE_HEIGHT * size == height) {
