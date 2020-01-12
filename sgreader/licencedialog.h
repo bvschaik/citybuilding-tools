@@ -28,8 +28,6 @@ class LicenceDialog : public QDialog {
 		* Constructor, constructs a new licence dialog
 		* @param parent Parent widget
 		* @param appname Name of the application, used in the title bar and licence
-		* @param showPkwareLicence Determines whether to show the licence
-		*           for the pkware decompression class
 		*/
 		LicenceDialog(QWidget *parent, const QString & appname);
 	
@@ -37,7 +35,6 @@ class LicenceDialog : public QDialog {
 		QString getLicenceText();
 		
 		QString appname;
-		bool showPkwareLicence;
 };
 
 #endif /* LICENCEDIALOG_H */
