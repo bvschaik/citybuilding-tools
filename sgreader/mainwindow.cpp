@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "imagetreeitem.h"
 #include "aboutdialog.h"
+#include "helpdialog.h"
 #include "licencedialog.h"
 #include "gui/extractwizard.h"
 
@@ -59,6 +60,11 @@ void MainWindow::licence() {
 	dialog.exec();
 }
 
+void MainWindow::help() {
+	HelpDialog dialog(this, appname);
+	dialog.exec();
+}
+
 void MainWindow::about() {
 	AboutDialog dialog(this, appname, QString("1.1 (2019-01-12)"),
 		tr("Copyright (C) 2007-2020 Bianca van Schaik &lt;pecuniam@gmail.com&gt;"),
@@ -112,8 +118,7 @@ void MainWindow::loadFile(const QString &filename) {
 		// Just have a long list of images
 		int numImages = sgFile->totalImageCount();
 		for (int i = 0; i < numImages; i++) {
-			QTreeWidgetItem *item = new ImageTreeItem(treeWidget, i,
-				sgFile->image(i));
+			new ImageTreeItem(treeWidget, i, sgFile->image(i));
 		}
 	} else {
 		// Split up by file

@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow {
 		void saveFile();
 		void extractAll();
 		void treeSelectionChanged();
-		//void help();
+		void help();
 		void licence();
 		void about();
 		
