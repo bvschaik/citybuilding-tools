@@ -59,11 +59,11 @@ LicenceDialog::LicenceDialog(QWidget *parent, const QString &appname)
 
 QString LicenceDialog::getLicenceText() {
 	QString text = tr(
-"Copyright (c) 2007, 2008 Bianca van Schaik <pecuniam@gmail.com>\n"
+"Copyright (c) 2007-2020 Bianca van Schaik <pecuniam@gmail.com>\n"
 "{MYAPPNAME} is released under the GNU General Public Licence, see below\n"
 "for the licence text.\n\n"
 "The source code of this program can be downloaded at:\n"
-"http://pecunia.nerdcamp.net/projects/citybuilding\n").replace("{MYAPPNAME}", appname);
+"https://github.com/bvschaik/citybuilding-tools\n").replace("{MYAPPNAME}", appname);
 	
 	text += tr(
 "-----------------------------------\n"

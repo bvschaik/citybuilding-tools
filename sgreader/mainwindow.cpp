@@ -60,8 +60,8 @@ void MainWindow::licence() {
 }
 
 void MainWindow::about() {
-	AboutDialog dialog(this, appname, QString("1.0 (2008-07-14)"),
-		tr("Copyright (C) 2007, 2008 Bianca van Schaik &lt;pecuniam@gmail.com&gt;"),
+	AboutDialog dialog(this, appname, QString("1.1 (2019-01-12)"),
+		tr("Copyright (C) 2007-2020 Bianca van Schaik &lt;pecuniam@gmail.com&gt;"),
 		tr("Read graphics files (*.sg2 and *.sg3) from Impressions citybuilding games.\n\n"
 		"This program is distributed in the hope that it will be useful,\n"
 		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
