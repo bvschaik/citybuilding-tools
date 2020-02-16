@@ -24,6 +24,7 @@
 #include "engconverter.h"
 
 #include "convertertab.h"
+#include "helpdialog.h"
 
 #include <QtGui/QtGui>
 
@@ -60,5 +61,6 @@ EngConverter::~EngConverter()
 
 void EngConverter::showHelp()
 {
-    // TODO implement
+    HelpDialog dialog(this, "ENG Converter");
+    dialog.exec();
 }

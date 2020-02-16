@@ -3,6 +3,7 @@ set(app_src
     # UI-related
     engconverter.cpp
     convertertab.cpp
+    helpdialog.cpp
     main.cpp
     # Conversion
     fileconverter.cpp
