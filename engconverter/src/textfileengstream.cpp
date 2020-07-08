@@ -97,7 +97,7 @@ bool TextFileEngStream::readFile(TextFile &file, EngDataStream &stream, Logger &
                 .arg(QString::number(group.id()))
                 .arg(QString::number(startOffset))
                 .arg(QString::number(endOffset)));
-            return false;
+            break;
         }
         
         while (startOffset < endOffset) {
