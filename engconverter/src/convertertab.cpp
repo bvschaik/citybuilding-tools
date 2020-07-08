@@ -44,6 +44,7 @@ ConverterTab::ConverterTab(ConverterTab::FileType from, ConverterTab::FileType t
     encodingComboBox->addItem("Windows-1252 - Default", QVariant("Windows-1252"));
     encodingComboBox->addItem("Windows-1250 - Eastern European", QVariant("Windows-1250"));
     encodingComboBox->addItem("Windows-1251 - Cyrillic", QVariant("Windows-1251"));
+    encodingComboBox->addItem("Windows-949 - Korean", QVariant("CP949"));
     encodingComboBox->addItem("Traditional Chinese (C3)", QVariant("c3-tc"));
 
     QPushButton *convertButton = new QPushButton(tr("Convert"));
