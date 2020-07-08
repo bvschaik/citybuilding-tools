@@ -6,6 +6,7 @@ set(app_src
     helpdialog.cpp
     main.cpp
     # Conversion
+    engdatastream.cpp
     fileconverter.cpp
     logger.cpp
     textfile.cpp
@@ -16,6 +17,7 @@ set(app_src
     messagefile.cpp
     messagefileengstream.cpp
     messagefilexmlstream.cpp
+    traditionalchinesecodec.cpp
     xmlstream.cpp
 )
 
