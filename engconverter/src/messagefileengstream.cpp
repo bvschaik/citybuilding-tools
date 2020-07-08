@@ -23,6 +23,8 @@
 
 #include "messagefileengstream.h"
 
+#include "traditionalchinesecodec.h"
+
 #include <QTextCodec>
 
 enum {
@@ -40,8 +42,7 @@ bool MessageFileEngStream::read(MessageFile &file, QIODevice &device, const QStr
         return false;
     }
     
-    QDataStream stream(&device);
-    prepareDataStream(stream, encoding);
+    EngDataStream stream(device, encoding, logger);
 
     bool result = readFile(file, stream, logger);
     
@@ -49,7 +50,7 @@ bool MessageFileEngStream::read(MessageFile &file, QIODevice &device, const QStr
     return result;
 }
 
-bool MessageFileEngStream::readFile(MessageFile &file, QDataStream &stream, Logger &logger)
+bool MessageFileEngStream::readFile(MessageFile &file, EngDataStream &stream, Logger &logger)
 {
     // header
     char rawName[17];
@@ -119,7 +120,7 @@ static int readInt(QDataStream &stream)
     return value;
 }
 
-void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, QDataStream &stream)
+void MessageFileEngStream::readMessageEntry(int id, MessageFile &file, EngDataStream &stream)
 {
     MessageEntry entry(id);
 
@@ -184,8 +185,7 @@ bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, const QSt
         return false;
     }
 
-    QDataStream stream(&device);
-    prepareDataStream(stream, encoding);
+    EngDataStream stream(device, encoding, logger);
     
     qSort(file.m_entries.begin(), file.m_entries.end(), compareMessageEntry);
 
@@ -218,7 +218,7 @@ bool MessageFileEngStream::write(MessageFile &file, QIODevice &device, const QSt
     return true;
 }
 
-void MessageFileEngStream::writeEmptyEntries(QDataStream &eng, int lastWrittenIndex, int nextIndex)
+void MessageFileEngStream::writeEmptyEntries(EngDataStream &eng, int lastWrittenIndex, int nextIndex)
 {
     for (int i = lastWrittenIndex + 1; i < nextIndex; i++) {
         for (int d = 0; d < 80; d += 4) {
@@ -227,7 +227,7 @@ void MessageFileEngStream::writeEmptyEntries(QDataStream &eng, int lastWrittenIn
     }
 }
 
-void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, QDataStream &stream, QByteArray &textData)
+void MessageFileEngStream::writeMessageEntry(MessageEntry &entry, EngDataStream &stream, QByteArray &textData)
 {
     // write texts to textData and store the offsets
     writeStringContent(entry.video(), textData);
@@ -291,10 +291,4 @@ void MessageFileEngStream::writeStringContent(MessageEntry::String &string, QByt
         textData.append(string.text);
         textData.append((char) 0);
     }
-}
-
-void MessageFileEngStream::prepareDataStream(QDataStream &stream, const QString &encoding)
-{
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName(encoding.toAscii()));
-    stream.setByteOrder(QDataStream::LittleEndian);
 }

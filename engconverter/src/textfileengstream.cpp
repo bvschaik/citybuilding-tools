@@ -23,7 +23,7 @@
 
 #include "textfileengstream.h"
 
-#include <QTextCodec>
+#include "engdatastream.h"
 
 enum {
     /**
@@ -44,8 +44,7 @@ bool TextFileEngStream::read(TextFile &file, QIODevice &device, const QString &e
         return false;
     }
     
-    QDataStream stream(&device);
-    prepareDataStream(stream, encoding);
+    EngDataStream stream(device, encoding, logger);
 
     bool result = readFile(file, stream, logger);
     
@@ -53,7 +52,7 @@ bool TextFileEngStream::read(TextFile &file, QIODevice &device, const QString &e
     return result;
 }
 
-bool TextFileEngStream::readFile(TextFile &file, QDataStream &stream, Logger &logger)
+bool TextFileEngStream::readFile(TextFile &file, EngDataStream &stream, Logger &logger)
 {
     // header
     char rawName[17];
@@ -128,8 +127,7 @@ bool TextFileEngStream::write(TextFile &file, QIODevice &device, const QString &
         return false;
     }
 
-    QDataStream stream(&device);
-    prepareDataStream(stream, encoding);
+    EngDataStream stream(device, encoding, logger);
     
     qSort(file.m_groups.begin(), file.m_groups.end(), compareTextGroup);
 
@@ -173,16 +171,10 @@ bool TextFileEngStream::write(TextFile &file, QIODevice &device, const QString &
     return true;
 }
 
-void TextFileEngStream::writeEmptyEntries(QDataStream &eng, int lastWrittenIndex, int nextIndex, int offset)
+void TextFileEngStream::writeEmptyEntries(EngDataStream &eng, int lastWrittenIndex, int nextIndex, int offset)
 {
     for (int i = lastWrittenIndex + 1; i < nextIndex; i++) {
         eng << (qint32) offset;
         eng << (qint32) 0;
     }
-}
-
-void TextFileEngStream::prepareDataStream(QDataStream &stream, const QString &encoding)
-{
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName(encoding.toAscii()));
-    stream.setByteOrder(QDataStream::LittleEndian);
 }

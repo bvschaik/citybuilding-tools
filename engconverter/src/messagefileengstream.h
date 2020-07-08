@@ -24,6 +24,7 @@
 #ifndef MESSAGEFILEENGSTREAM_H
 #define MESSAGEFILEENGSTREAM_H
 
+#include "engdatastream.h"
 #include "logger.h"
 #include "messagefile.h"
 
@@ -54,12 +55,11 @@ public:
     bool write(MessageFile &file, QIODevice &device, const QString &encoding, Logger &logger);
 
 private:
-    void prepareDataStream(QDataStream &stream, const QString &encoding);
-    bool readFile(MessageFile &file, QDataStream &stream, Logger &logger);
-    void readMessageEntry(int id, MessageFile &file, QDataStream &stream);
+    bool readFile(MessageFile &file, EngDataStream &stream, Logger &logger);
+    void readMessageEntry(int id, MessageFile &file, EngDataStream &stream);
     bool readStringContent(MessageEntry::String &target, const char *rawData, int textSize, int id, const QString &field, Logger &logger);
-    void writeEmptyEntries(QDataStream &eng, int lastWrittenIndex, int nextIndex);
-    void writeMessageEntry(MessageEntry &entry, QDataStream &stream, QByteArray &textData);
+    void writeEmptyEntries(EngDataStream &eng, int lastWrittenIndex, int nextIndex);
+    void writeMessageEntry(MessageEntry &entry, EngDataStream &stream, QByteArray &textData);
     void writeStringContent(MessageEntry::String &string, QByteArray &textData);
 };
 

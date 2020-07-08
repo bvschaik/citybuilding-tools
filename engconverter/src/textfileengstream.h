@@ -24,6 +24,7 @@
 #ifndef TEXTFILEENGSTREAM_H
 #define TEXTFILEENGSTREAM_H
 
+#include "engdatastream.h"
 #include "textfile.h"
 
 #include <QDataStream>
@@ -56,9 +57,9 @@ public:
     bool write(TextFile &file, QIODevice &device, const QString &encoding, Logger &logger);
 
 private:
-    void prepareDataStream(QDataStream &stream, const QString &encoding);
-    bool readFile(TextFile &file, QDataStream &stream, Logger &logger);
-    void writeEmptyEntries(QDataStream &stream, int lastWrittenIndex, int nextIndex, int offset);
+    void prepareDataStream(EngDataStream &stream, const QString &encoding);
+    bool readFile(TextFile &file, EngDataStream &stream, Logger &logger);
+    void writeEmptyEntries(EngDataStream &stream, int lastWrittenIndex, int nextIndex, int offset);
 };
 
 #endif // TEXTFILEENGSTREAM_H
