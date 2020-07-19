@@ -2275,7 +2275,7 @@ QString TraditionalChineseCodec::convertToUnicode(const char *chars, int len, Co
         } else if (index + 1 < len) {
             // 2-byte char, get value
             int id = (chars[index] & 0xff) | ((chars[index + 1] << 8) & 0xff00);
-            QChar c = internalToUnicode[id];
+            QChar c = internalToUnicode.value(id);
             if (c != 0) {
                 result += c;
             } else {
@@ -2305,7 +2305,7 @@ QByteArray TraditionalChineseCodec::convertFromUnicode(const QChar *chars, int l
         if (c.unicode() < 0x80) {
             bytes += (char) (c.unicode() & 0xff);
         } else {
-            int internal = unicodeToInternal[c];
+            int internal = unicodeToInternal.value(c);
             if (internal) {
                 bytes += (char) (internal & 0xff);
                 bytes += (char) ((internal >> 8) & 0xff);

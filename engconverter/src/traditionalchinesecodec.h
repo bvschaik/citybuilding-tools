@@ -26,7 +26,7 @@
 
 #include "logger.h"
 
-#include <QMap>
+#include <QHash>
 #include <QTextCodec>
 
 class TraditionalChineseCodec : public QTextCodec
@@ -41,8 +41,8 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
 private:
-    QMap<int, QChar> internalToUnicode;
-    QMap<QChar, int> unicodeToInternal;
+    QHash<int, QChar> internalToUnicode;
+    QHash<QChar, int> unicodeToInternal;
     Logger &logger;
 };
 
