@@ -1,6 +1,11 @@
 #include "inputdirpage.h"
 
-#include <QtGui> // TODO: specify
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
 
 InputDirPage::InputDirPage(QWidget *parent)
 	: QWizardPage(parent)

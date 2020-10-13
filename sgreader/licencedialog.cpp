@@ -18,11 +18,11 @@
  */
 #include "licencedialog.h"
 
-#include <QTextEdit>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QFont>
+#include <QtGui/QFont>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QTextEdit>
 
 LicenceDialog::LicenceDialog(QWidget *parent, const QString &appname)
 	: QDialog(parent) {

@@ -1,10 +1,10 @@
 #ifndef SGBITMAP_H
 #define SGBITMAP_H
 
-#include <QImage>
-#include <QList>
-#include <QString>
-#include <QDir>
+#include <QtCore/QDir>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtGui/QImage>
 
 class QDataStream;
 class QFile;

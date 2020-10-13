@@ -1,10 +1,9 @@
 TEMPLATE = app
-TARGET = 
-DEPENDPATH += . gui
-INCLUDEPATH += . gui
+TARGET = SGReader
 OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
 RCC_DIR = build/rcc
+QT += core gui widgets
 
 # Input
 HEADERS += aboutdialog.h \

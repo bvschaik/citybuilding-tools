@@ -1,10 +1,10 @@
 #ifndef IMAGETREEITEM_H
 #define IMAGETREEITEM_H
 
-#include "sgimage.h"
+#include <QtCore/QString>
+#include <QtWidgets/QTreeWidgetItem>
 
-#include <QTreeWidgetItem>
-#include <QString>
+#include "sgimage.h"
 
 class ImageTreeItem : public QTreeWidgetItem {
 	public:

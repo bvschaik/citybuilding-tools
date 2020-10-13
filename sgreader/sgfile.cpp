@@ -1,9 +1,10 @@
 #include "sgfile.h"
-#include "sgimage.h"
 
-#include <QDataStream>
-#include <QFile>
-#include <QFileInfo>
+#include <QtCore/QDataStream>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+
+#include "sgimage.h"
 
 enum {
 	SG_HEADER_SIZE = 680
