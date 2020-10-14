@@ -1,10 +1,10 @@
 #ifndef EXTRACTTHREAD_H
 #define EXTRACTTHREAD_H
 
-#include <QThread>
-#include <QString>
-#include <QStringList>
-#include <QDir>
+#include <QtCore/QDir>
+#include <QtCore/QThread>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 class ExtractThread : public QThread {
 	Q_OBJECT

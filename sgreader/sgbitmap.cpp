@@ -1,8 +1,9 @@
 #include "sgbitmap.h"
-#include "sgimage.h"
 
-#include <QFile>
-#include <QDataStream>
+#include <QtCore/QDataStream>
+#include <QtCore/QFile>
+
+#include "sgimage.h"
 
 class SgBitmapRecord {
 public:

@@ -1,9 +1,19 @@
 #include "mainwindow.h"
-#include "imagetreeitem.h"
+
+#include <QtCore/QCoreApplication>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QScrollArea>
+#include <QtWidgets/QSplitter>
+
+#include "gui/extractwizard.h"
 #include "aboutdialog.h"
 #include "helpdialog.h"
+#include "imagetreeitem.h"
 #include "licencedialog.h"
-#include "gui/extractwizard.h"
 
 MainWindow::MainWindow()
 	: QMainWindow(), appname("SGReader")

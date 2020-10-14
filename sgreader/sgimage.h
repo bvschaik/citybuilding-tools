@@ -1,8 +1,9 @@
 #ifndef SGIMAGE_H
 #define SGIMAGE_H
 
+#include <QtGui/QImage>
+
 #include "sgbitmap.h"
-#include <QImage>
 
 class SgImageRecord;
 

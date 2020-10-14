@@ -1,11 +1,11 @@
 #include "extractwizard.h"
 
-#include "inputdirpage.h"
+#include <QtGui/QCloseEvent>
+
 #include "filelistpage.h"
+#include "inputdirpage.h"
 #include "outputdirpage.h"
 #include "progresspage.h"
-
-#include <QtGui> // TODO: specify
 
 ExtractWizard::ExtractWizard(QWidget *parent)
 	: QWizard(parent)

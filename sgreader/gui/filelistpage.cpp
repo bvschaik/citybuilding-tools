@@ -1,6 +1,11 @@
 #include "filelistpage.h"
 
-#include <QtGui> // TODO: optimize
+#include <QtCore/QDir>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QListWidget>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
 
 FileListPage::FileListPage(QWidget *parent)
 	: QWizardPage(parent)

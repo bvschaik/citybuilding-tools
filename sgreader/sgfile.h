@@ -1,9 +1,9 @@
 #ifndef SGFILE_H
 #define SGFILE_H
 
-#include <QString>
-#include <QList>
-#include <QImage>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtGui/QImage>
 
 class SgBitmap;
 class SgImage;
