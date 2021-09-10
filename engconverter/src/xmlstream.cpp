@@ -76,7 +76,7 @@ bool XmlStream::readNextOpenTag(QXmlStreamReader &xml, Logger &logger)
                 continue;
 
             case QXmlStreamReader::Invalid:
-                logger.error(QString("Invalid XML: %s").arg(xml.errorString()));
+                logger.error(QString("Invalid XML: %1").arg(xml.errorString()));
                 return false;
 
             case QXmlStreamReader::EndDocument:
