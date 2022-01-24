@@ -46,6 +46,7 @@ ConverterTab::ConverterTab(ConverterTab::FileType from, ConverterTab::FileType t
     encodingComboBox->addItem("Windows-1251 - Cyrillic", QVariant("Windows-1251"));
     encodingComboBox->addItem("Windows-1253 - Greek", QVariant("Windows-1253"));
     encodingComboBox->addItem("Windows-949 - Korean", QVariant("CP949"));
+    encodingComboBox->addItem("Windows-932 - Japanese", QVariant("Shift_JIS"));
     encodingComboBox->addItem("Traditional Chinese (C3)", QVariant("c3-tc"));
     encodingComboBox->addItem("Simplified Chinese (C3)", QVariant("c3-sc"));
 
