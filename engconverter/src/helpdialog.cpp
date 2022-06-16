@@ -63,8 +63,8 @@ HelpDialog::HelpDialog(QWidget *parent, const QString &appname)
 
 QString HelpDialog::getLicenseText(const QString &appname) {
     QString text = tr(
-"{MYAPPNAME} 0.4\n"
-"Copyright (c) 2017-2020 Bianca van Schaik <bvschaik@gmail.com>\n"
+"{MYAPPNAME} 0.5\n"
+"Copyright (c) 2017-2022 Bianca van Schaik <bvschaik@gmail.com>\n"
 "{MYAPPNAME} is released under the MIT license, see below"
 " for the license text.\n\n"
 "The source code of this program can be downloaded at:\n"
