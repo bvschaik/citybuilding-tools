@@ -19,8 +19,8 @@
 #ifndef HELPDIALOG_H
 #define HELPDIALOG_H
 
-#include <QDialog>
-#include <QString>
+#include <QtCore/QString>
+#include <QtWidgets/QDialog>
 
 class HelpDialog : public QDialog {
 	public:

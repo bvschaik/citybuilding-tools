@@ -1,9 +1,9 @@
 #ifndef EXTRACTWIZARD_H
 #define EXTRACTWIZARD_H
 
-#include <QWizard>
-#include <QString>
-#include <QStringList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtWidgets/QWizard>
 
 class QStackedWidget;
 class QPushButton;

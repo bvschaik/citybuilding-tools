@@ -1,7 +1,7 @@
 #ifndef OUTPUTDIRPAGE_H
 #define OUTPUTDIRPAGE_H
 
-#include <QWizardPage>
+#include <QtWidgets/QWizardPage>
 
 class QLineEdit;
 class QCheckBox;

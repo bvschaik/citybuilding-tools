@@ -1,13 +1,15 @@
 #include "progresspage.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
+
 #include "extractthread.h"
-
-#include <QVBoxLayout>
-#include <QVariant>
-#include <QAbstractButton>
-#include <QPushButton>
-
-#include <QDebug>
 
 ProgressPage::ProgressPage(QWidget *parent)
 	: QWizardPage(parent), thread(NULL)

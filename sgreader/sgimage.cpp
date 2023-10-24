@@ -1,6 +1,7 @@
 #include "sgimage.h"
-#include <QFile>
-#include <QDataStream>
+
+#include <QtCore/QFile>
+#include <QtCore/QDataStream>
 
 enum {
 	ISOMETRIC_TILE_WIDTH = 58,
@@ -109,7 +110,7 @@ QString SgImage::errorMessage() const {
 }
 
 void SgImage::setError(const QString &message) {
-	qDebug(message.toAscii().constData());
+    qDebug(message.toLatin1().constData());
 	error = message;
 }
 

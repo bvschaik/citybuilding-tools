@@ -1,13 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QtGui> // TODO: specify
+#include <QtWidgets/QMainWindow>
 
 #include "sgfile.h"
 #include "sgimage.h"
 
 class QAction;
+class QTreeWidget;
+class QLabel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT

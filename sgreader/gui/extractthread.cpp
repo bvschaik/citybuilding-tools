@@ -1,10 +1,9 @@
 #include "extractthread.h"
 
-#include "../sgfile.h"
 #include "../sgbitmap.h"
 #include "../sgfile.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 ExtractThread::ExtractThread(const QStringList &files, const QString &outputDir,
 	bool extractSystem)

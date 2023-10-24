@@ -17,8 +17,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "aboutdialog.h"
-#include <QtGui>
-#include <QGridLayout>
+
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 
 AboutDialog::AboutDialog(QWidget *parent,
 	const QString &appname, const QString &version,
