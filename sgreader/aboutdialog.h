@@ -19,6 +19,7 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
+#include <QtWidgets>
 #include <QDialog>
 
 class AboutDialog : public QDialog {
