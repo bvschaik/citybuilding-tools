@@ -1,6 +1,7 @@
 #ifndef OUTPUTDIRPAGE_H
 #define OUTPUTDIRPAGE_H
 
+#include <QtWidgets>
 #include <QWizardPage>
 
 class QLineEdit;

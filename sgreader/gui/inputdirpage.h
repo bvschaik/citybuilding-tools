@@ -1,6 +1,7 @@
 #ifndef INPUTDIRPAGE_H
 #define INPUTDIRPAGE_H
 
+#include <QtWidgets>
 #include <QWizardPage>
 
 class QLineEdit;

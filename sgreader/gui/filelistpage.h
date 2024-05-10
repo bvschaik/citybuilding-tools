@@ -1,6 +1,7 @@
 #ifndef FILELISTPAGE_H
 #define FILELISTPAGE_H
 
+#include <QtWidgets>
 #include <QWizardPage>
 
 class QListWidget;

@@ -1,10 +1,12 @@
 TEMPLATE = app
-TARGET = 
+TARGET = sgreader
 DEPENDPATH += . gui
 INCLUDEPATH += . gui
 OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
 RCC_DIR = build/rcc
+
+QT += widgets
 
 # Input
 HEADERS += aboutdialog.h \
