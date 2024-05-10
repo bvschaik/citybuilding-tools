@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = 
+TARGET = sgreader
 DEPENDPATH += . gui
 INCLUDEPATH += . gui
 OBJECTS_DIR = build/obj
