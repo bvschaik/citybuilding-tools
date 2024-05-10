@@ -109,7 +109,7 @@ QString SgImage::errorMessage() const {
 }
 
 void SgImage::setError(const QString &message) {
-	qDebug(message.toAscii().constData());
+	qDebug(message.toUtf8().constData());
 	error = message;
 }
 
