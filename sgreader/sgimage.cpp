@@ -402,7 +402,7 @@ void SgImage::set555Pixel(QImage *img, int x, int y, quint16 color) {
 	rgb |= ((color & 0x7c00) << 9) | ((color & 0x7000) << 4);
 	
 	// Green: bits 6-10, should go to bits 9-16
-	rgb |= ((color & 0x3e0) << 6) | ((color & 0x300));
+	rgb |= ((color & 0x3e0) << 6) | ((color & 0x300) << 1);
 	
 	// Blue: bits 1-5, should go to bits 1-8
 	rgb |= ((color & 0x1f) << 3) | ((color & 0x1c) >> 2);
