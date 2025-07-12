@@ -1,5 +1,6 @@
 #include "engdatastream.h"
 
+#include "koreancodec.h"
 #include "simplifiedchinesecodec.h"
 #include "traditionalchinesecodec.h"
 
@@ -12,6 +13,8 @@ EngDataStream::EngDataStream(QIODevice &device, const QString &encoding, Logger 
         QTextCodec::setCodecForCStrings(new TraditionalChineseCodec(logger));
     } else if (encoding.compare(QString("c3-sc")) == 0) {
         QTextCodec::setCodecForCStrings(new SimplifiedChineseCodec(logger));
+    } else if (encoding.compare(QString("CP949")) == 0) {
+        QTextCodec::setCodecForCStrings(new KoreanCodec());
     } else {
         QTextCodec::setCodecForCStrings(QTextCodec::codecForName(encoding.toAscii()));
     }

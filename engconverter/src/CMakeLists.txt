@@ -17,6 +17,7 @@ set(app_src
     messagefile.cpp
     messagefileengstream.cpp
     messagefilexmlstream.cpp
+    koreancodec.cpp
     simplifiedchinesecodec.cpp
     traditionalchinesecodec.cpp
     xmlstream.cpp
