@@ -17,10 +17,12 @@ set(app_src
     messagefile.cpp
     messagefileengstream.cpp
     messagefilexmlstream.cpp
+    xmlstream.cpp
+    # Codecs
+    japanesecodec.cpp
     koreancodec.cpp
     simplifiedchinesecodec.cpp
     traditionalchinesecodec.cpp
-    xmlstream.cpp
 )
 
 qt4_add_resources(app_res

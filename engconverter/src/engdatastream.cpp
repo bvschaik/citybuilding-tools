@@ -1,5 +1,6 @@
 #include "engdatastream.h"
 
+#include "japanesecodec.h"
 #include "koreancodec.h"
 #include "simplifiedchinesecodec.h"
 #include "traditionalchinesecodec.h"
@@ -15,6 +16,8 @@ EngDataStream::EngDataStream(QIODevice &device, const QString &encoding, Logger 
         QTextCodec::setCodecForCStrings(new SimplifiedChineseCodec(logger));
     } else if (encoding.compare(QString("CP949")) == 0) {
         QTextCodec::setCodecForCStrings(new KoreanCodec());
+    } else if (encoding.compare(QString("Shift_JIS")) == 0) {
+        QTextCodec::setCodecForCStrings(new JapaneseCodec());
     } else {
         QTextCodec::setCodecForCStrings(QTextCodec::codecForName(encoding.toAscii()));
     }
